@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import 'dotenv/config';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -7,9 +8,11 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { OrchestratorManager } from './orchestrator/manager.js';
+import { AIOrchestrator } from './ai/orchestrator.js';
 
-// Initialize the orchestrator manager
+// Initialize the orchestrator manager and AI layer
 const orchestrator = new OrchestratorManager();
+const aiOrchestrator = new AIOrchestrator(orchestrator);
 
 const server = new Server(
   {
@@ -66,6 +69,28 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         required: ['url'],
       },
     },
+    {
+      name: 'ai_process',
+      description: 'Process requests using AI-enhanced orchestration with intelligent tool routing and workflow automation',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          request: {
+            type: 'string',
+            description: 'The request to process using AI orchestration',
+          },
+        },
+        required: ['request'],
+      },
+    },
+    {
+      name: 'ai_status',
+      description: 'Get the status of AI orchestration capabilities and connected servers',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
   ];
 
   return {
@@ -105,6 +130,8 @@ Capabilities: Multi-server orchestration and workflow coordination`,
           `- ${name}: ${info.connected ? '✅' : '❌'} (${info.toolCount} tools)`
         ).join('\n');
 
+      const aiStatus = aiOrchestrator.getStatus();
+
       return {
         content: [
           {
@@ -118,15 +145,22 @@ Description: Intelligent MCP server orchestration and workflow coordination
 Connected Servers:
 ${serverDetails || '- No servers connected'}
 
-Current Status: Multi-server orchestration active
+🧠 AI Orchestration Status:
+- Initialized: ${aiStatus.initialized ? '✅' : '❌'}
+- AI Available: ${aiStatus.aiAvailable ? '✅' : '❌'}
+- Capabilities: ${aiStatus.capabilities.length} active
+
+Current Status: ${aiStatus.aiAvailable ? 'AI-enhanced' : 'Basic'} orchestration active
 Features:
 ✅ MCP server discovery and management
 ✅ Tool delegation and routing
 ✅ Built-in web fetching capabilities
-🔄 AI-powered intent understanding (coming soon)
-🔄 Result synthesis and coordination (coming soon)
+${aiStatus.aiAvailable ? '✅' : '🔄'} AI-powered intent understanding
+${aiStatus.aiAvailable ? '✅' : '🔄'} Intelligent workflow automation
+${aiStatus.aiAvailable ? '✅' : '🔄'} Result synthesis and coordination
 
-Available Tools: Use list_tools to see all available tools from connected servers`,
+Available Tools: Use list_tools to see all available tools from connected servers
+${aiStatus.aiAvailable ? '\n🤖 Try the ai_process tool for intelligent request handling!' : '\n💡 Set OPENROUTER_API_KEY to enable AI features'}`,
           },
         ],
       };
@@ -163,6 +197,82 @@ Available Tools: Use list_tools to see all available tools from connected server
         };
       }
 
+    case 'ai_process':
+      try {
+        const request = args?.request;
+        if (!request || typeof request !== 'string') {
+          throw new Error('Request parameter is required and must be a string');
+        }
+
+        // Check if AI is available, fallback to simple processing if not
+        if (aiOrchestrator.isAIAvailable()) {
+          const result = await aiOrchestrator.processRequest(request);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `🤖 AI-Enhanced Response:\n\n${result.response}\n\n📊 Metadata:\n- Processing Time: ${result.metadata.processingTime}ms\n- Tools Used: ${result.metadata.toolsUsed.join(', ')}\n- Confidence: ${(result.metadata.confidence * 100).toFixed(1)}%\n- Workflow Steps: ${result.metadata.workflowSteps}\n- AI Enhanced: ${result.metadata.aiEnhanced ? '✅' : '❌'}`,
+              },
+            ],
+          };
+        } else {
+          const result = await aiOrchestrator.processRequestFallback(request);
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `🔄 Fallback Response:\n\n${result.response}\n\n📊 Metadata:\n- Processing Time: ${result.metadata.processingTime}ms\n- Tools Used: ${result.metadata.toolsUsed.join(', ')}\n- AI Enhanced: ${result.metadata.aiEnhanced ? '✅' : '❌'}\n\n⚠️ Note: AI orchestration is not available. Using simple tool routing.`,
+              },
+            ],
+          };
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error processing AI request: ${error}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+    case 'ai_status':
+      try {
+        const status = aiOrchestrator.getStatus();
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `🧠 AI Orchestration Status
+
+Initialization: ${status.initialized ? '✅ Ready' : '❌ Not initialized'}
+AI Available: ${status.aiAvailable ? '✅ Yes' : '❌ No (check OPENROUTER_API_KEY)'}
+Connected Servers: ${status.connectedServers}
+
+Capabilities:
+${status.capabilities.map(cap => `✅ ${cap.replace(/_/g, ' ')}`).join('\n')}
+
+${status.aiAvailable ?
+  '🎉 AI orchestration is fully operational!' :
+  '⚠️ AI orchestration is not available. Check your OpenRouter API key configuration.'
+}`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error getting AI status: ${error}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
     default:
       // Try to delegate to connected servers
       try {
@@ -179,12 +289,29 @@ async function main() {
     // Initialize orchestrator and connect to MCP servers
     await orchestrator.initialize();
 
+    // Initialize AI orchestration layer (optional - will gracefully degrade if not available)
+    try {
+      await aiOrchestrator.initialize();
+      console.error('🧠 AI Orchestration Layer initialized successfully');
+    } catch (aiError) {
+      console.error('⚠️ AI Orchestration Layer failed to initialize:', aiError);
+      console.error('🔄 Continuing with basic orchestration (AI features disabled)');
+    }
+
     // Start the MCP server
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
     // Log to stderr so it doesn't interfere with MCP protocol
     console.error('🎼 Orchestrator MCP Server started and ready for connections');
+
+    // Log AI status
+    const aiStatus = aiOrchestrator.getStatus();
+    if (aiStatus.aiAvailable) {
+      console.error('🤖 AI-enhanced orchestration is active');
+    } else {
+      console.error('🔧 Basic orchestration mode (set OPENROUTER_API_KEY for AI features)');
+    }
 
     // Handle graceful shutdown
     process.on('SIGINT', async () => {
