@@ -1,0 +1,42 @@
+{
+  "name": "orchestrator-mcp",
+  "version": "0.1.0",
+  "description": "Intelligent MCP server orchestration and workflow coordination",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "orchestrator-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "mcp",
+    "orchestrator",
+    "ai",
+    "workflow",
+    "automation"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@modelcontextprotocol/server-filesystem": "^2025.7.1",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
+    "@openrouter/ai-sdk-provider": "^0.7.2",
+    "ai": "^4.3.16",
+    "chokidar": "^4.0.3",
+    "execa": "^9.6.0",
+    "zod": "^3.25.71"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
