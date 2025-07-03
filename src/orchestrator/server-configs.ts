@@ -101,10 +101,10 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'github': {
     name: 'github',
     description: 'Official GitHub integration for repository management, PRs, issues',
-    enabled: false, // Phase 3 - next to enable
+    enabled: true, // Phase 3 - ENABLED!
     runtime: 'npm',
     command: 'npx',
-    args: ['@github/github-mcp-server'],
+    args: ['@modelcontextprotocol/server-github'],
     category: 'official',
     language: 'typescript',
     env: {
@@ -122,11 +122,24 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
 
   'playwright': {
     name: 'playwright',
-    description: 'Official Microsoft Playwright for browser automation and web testing',
-    enabled: false,
+    description: 'Community Playwright server for browser automation and web testing',
+    enabled: true, // Phase 5 - ENABLED for browser automation!
     runtime: 'npm',
     command: 'npx',
-    args: ['@microsoft/playwright-mcp'],
+    args: ['@executeautomation/playwright-mcp-server'],
+    category: 'community',
+    language: 'typescript',
+    requiresSetup: true,
+    phase: 5,
+  },
+
+  'puppeteer': {
+    name: 'puppeteer',
+    description: 'Official Puppeteer server for browser automation and web scraping',
+    enabled: true, // Phase 5 - ENABLED as alternative to Playwright!
+    runtime: 'npm',
+    command: 'npx',
+    args: ['@modelcontextprotocol/server-puppeteer'],
     category: 'official',
     language: 'typescript',
     requiresSetup: true,
