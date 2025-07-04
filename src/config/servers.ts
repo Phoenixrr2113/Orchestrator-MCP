@@ -1,24 +1,29 @@
 /**
+ * Server configurations
+ * Moved from orchestrator/server-configs.ts to match planned structure
+ */
+
+/**
  * Enhanced server configuration supporting multiple runtimes
  */
 export interface EnhancedServerConfig {
   name: string;
   description: string;
   enabled: boolean;
-  
+
   // Execution configuration
   runtime: 'npm' | 'uvx' | 'python' | 'node' | 'git' | 'local';
   command: string;
   args?: string[];
-  
+
   // Optional setup/installation
   installCommand?: string;
   installArgs?: string[];
-  
+
   // Environment requirements
   env?: Record<string, string>;
   workingDirectory?: string;
-  
+
   // Metadata
   category: 'official' | 'community';
   language: 'typescript' | 'python' | 'rust' | 'go' | 'java' | 'csharp' | 'other';
@@ -32,7 +37,7 @@ export interface EnhancedServerConfig {
  */
 export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   // ===== PHASE 1-2: FOUNDATION (COMPLETE) =====
-  
+
   // Official TypeScript servers (npm)
   'filesystem': {
     name: 'filesystem',
@@ -45,7 +50,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     language: 'typescript',
     phase: 1,
   },
-  
+
   'sequential-thinking': {
     name: 'sequential-thinking',
     description: 'Dynamic and reflective problem-solving through thought sequences',
@@ -115,7 +120,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   },
 
   // ===== PHASE 4: AI ENHANCEMENT LAYER =====
-  
+
   // No additional servers needed - focuses on AI orchestration with existing servers
 
   // ===== PHASE 5: CODING INTELLIGENCE & AUTOMATION =====
@@ -264,44 +269,27 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   },
 };
 
-/**
- * Get server configuration by name
- */
+// Utility functions will be moved here too
 export function getServerConfig(name: string): EnhancedServerConfig | undefined {
   return MCP_SERVER_REGISTRY[name];
 }
 
-/**
- * Get all enabled servers
- */
 export function getEnabledServers(): EnhancedServerConfig[] {
   return Object.values(MCP_SERVER_REGISTRY).filter(server => server.enabled);
 }
 
-/**
- * Get servers by category
- */
 export function getServersByCategory(category: 'official' | 'community'): EnhancedServerConfig[] {
   return Object.values(MCP_SERVER_REGISTRY).filter(server => server.category === category);
 }
 
-/**
- * Get servers by runtime
- */
 export function getServersByRuntime(runtime: EnhancedServerConfig['runtime']): EnhancedServerConfig[] {
   return Object.values(MCP_SERVER_REGISTRY).filter(server => server.runtime === runtime);
 }
 
-/**
- * Get servers by phase
- */
 export function getServersByPhase(phase: number): EnhancedServerConfig[] {
   return Object.values(MCP_SERVER_REGISTRY).filter(server => server.phase === phase);
 }
 
-/**
- * Enable/disable a server
- */
 export function toggleServer(name: string, enabled: boolean): boolean {
   const server = MCP_SERVER_REGISTRY[name];
   if (server) {
@@ -311,16 +299,10 @@ export function toggleServer(name: string, enabled: boolean): boolean {
   return false;
 }
 
-/**
- * Add a custom server to the registry
- */
 export function addCustomServer(config: EnhancedServerConfig): void {
   MCP_SERVER_REGISTRY[config.name] = config;
 }
 
-/**
- * Validate server configuration
- */
 export function validateServerConfig(config: EnhancedServerConfig): string[] {
   const errors: string[] = [];
 

@@ -1,6 +1,6 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { getEnabledServers, type EnhancedServerConfig, validateServerConfig } from './server-configs.js';
+import { getEnabledServers, type EnhancedServerConfig, validateServerConfig } from '../config/servers.js';
 import { toolTracker } from '../ai/toolTracker.js';
 
 /**
@@ -93,6 +93,13 @@ export class OrchestratorManager {
     };
 
     this.servers.set(config.name, connectedServer);
+  }
+
+  /**
+   * Get connected servers map
+   */
+  getConnectedServers(): Map<string, ConnectedServer> {
+    return this.servers;
   }
 
   /**
