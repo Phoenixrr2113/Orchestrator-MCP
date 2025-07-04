@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "Orchestrator MCP": {
+      "command": "node",
+      "args": ["/path/to/augmentv2/dist/index.js"],
+      "env": {
+        "OPENROUTER_API_KEY": "your_openrouter_api_key_here",
+        "OPENROUTER_DEFAULT_MODEL": "anthropic/claude-3.5-sonnet",
+        "OPENROUTER_MAX_TOKENS": "2000",
+        "OPENROUTER_TEMPERATURE": "0.7",
+        "GITHUB_TOKEN": "your_github_token_here_optional",
+        "SEMGREP_APP_TOKEN": "your_semgrep_token_here_optional"
+      }
+    }
+  }
+}

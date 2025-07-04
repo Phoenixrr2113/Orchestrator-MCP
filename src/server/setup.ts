@@ -76,7 +76,7 @@ export async function startServer(
     if (aiStatus.aiAvailable) {
       logger.info('AI-enhanced orchestration is active');
     } else {
-      logger.info('Basic orchestration mode (set OPENROUTER_API_KEY for AI features)');
+      logger.info('Basic orchestration mode (configure OPENROUTER_API_KEY in MCP client for AI features)');
     }
 
     // Handle graceful shutdown

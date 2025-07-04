@@ -171,7 +171,7 @@ async function analyzeDependencies(rootPath: string): Promise<{
   // TODO: Parse package.json and analyze import statements
 
   return {
-    external: ['@modelcontextprotocol/sdk', 'typescript', 'dotenv'],
+    external: ['@modelcontextprotocol/sdk', 'typescript'],
     internal: ['./orchestrator', './ai', './utils'],
     circular: [], // Would detect circular dependencies
   };

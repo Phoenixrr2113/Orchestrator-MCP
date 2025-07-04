@@ -168,16 +168,22 @@ export class IntelligentRouter {
     intentAnalysis: any,
     toolCatalog: any[]
   ): Promise<RoutingDecision[]> {
+    const currentWorkingDirectory = process.cwd();
     const toolSelectionPrompt = `
-User Request: "${userRequest}"
+CONTEXT:
+- Current Working Directory: ${currentWorkingDirectory}
+- Available MCP Servers: ${toolCatalog.map(t => t.serverName).filter((v, i, a) => a.indexOf(v) === i).join(', ')}
+- Total Available Tools: ${toolCatalog.length}
 
-Intent Analysis:
+USER REQUEST: "${userRequest}"
+
+INTENT ANALYSIS:
 - Intent: ${intentAnalysis.intent}
 - Entities: ${JSON.stringify(intentAnalysis.entities)}
 - Confidence: ${intentAnalysis.confidence}
 - Suggested Tools: ${intentAnalysis.suggestedTools.join(', ')}
 
-Available Tools:
+AVAILABLE TOOLS:
 ${toolCatalog.map((tool, index) => `
 ${index + 1}. ${tool.fullName}
    Server: ${tool.serverName}
@@ -212,11 +218,18 @@ This system serves as an AI assistant enhancement layer, so focus on:
 2. **Intelligence**: Understand the user's true intent, not just keywords
 3. **Workflow Logic**: Consider dependencies and optimal sequencing
 4. **Resource Optimization**: Minimize redundant operations
+5. **Memory Usage**: ALWAYS use memory tools to store and retrieve context when relevant
+
+IMPORTANT TOOL NAMING:
+- Use EXACT tool names from the available tools list (e.g., "filesystem_read_file", "git_log", "memory_create_entity")
+- Tool names follow the pattern: {server_name}_{tool_name}
+- When working with files, ALWAYS provide full paths or relative paths from the current working directory
+- For memory operations, store insights and context for future reference
 
 Available tool categories:
-- filesystem: File operations, code analysis, directory traversal
+- filesystem: File operations, code analysis, directory traversal (use full paths)
 - git: Repository management, version control, change tracking
-- memory: Persistent knowledge storage, context management
+- memory: Persistent knowledge storage, context management (ALWAYS use for storing insights)
 - fetch: Web content retrieval, document processing
 - duckduckgo-search: Web search for current information
 - github: Repository analysis, issue management, code review
@@ -227,15 +240,24 @@ Available tool categories:
 Always respond with valid JSON in this format:
 [
   {
-    "selectedTool": "server_toolname",
-    "serverName": "server",
+    "selectedTool": "filesystem_read_file",
+    "serverName": "filesystem",
     "confidence": 0.95,
-    "reasoning": "This tool accomplishes X which directly supports the user's goal of Y",
-    "alternativeTools": ["backup_option1", "backup_option2"],
-    "parameters": {"param1": "value1", "param2": "value2"}
+    "reasoning": "This tool reads the specific file requested by the user",
+    "alternativeTools": ["filesystem_list_directory", "git_show"],
+    "parameters": {"path": "/full/path/to/file.ts"}
+  },
+  {
+    "selectedTool": "memory_create_entity",
+    "serverName": "memory",
+    "confidence": 0.90,
+    "reasoning": "Store the analysis results for future reference",
+    "alternativeTools": ["memory_add_observation"],
+    "parameters": {"name": "file_analysis", "entityType": "analysis", "observations": ["key insights"]}
   }
 ]
 
+CRITICAL: Always include memory operations to store insights and context for future use.
 Prioritize tools that provide the most value for the user's specific request.`,
         temperature: 0.2, // Lower temperature for more consistent tool selection
       });

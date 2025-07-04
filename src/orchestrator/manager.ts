@@ -44,7 +44,7 @@ export class OrchestratorManager {
 
         // Add working directory for filesystem server
         if (config.name === 'filesystem') {
-          config.args = [...(config.args || []), '/Users/randywilson/Desktop/augmentv2'];
+          config.args = [...(config.args || []), process.cwd()];
         }
 
         await this.connectToServer(config);

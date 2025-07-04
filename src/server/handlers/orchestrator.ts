@@ -106,6 +106,7 @@ export async function handleAIStatus(aiOrchestrator: AIOrchestrator) {
       capabilities,
       apiKeyConfigured: !!process.env.OPENROUTER_API_KEY,
       model: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet',
+      configurationNote: 'API keys should be configured in MCP client settings under "env" section',
     };
 
     return {

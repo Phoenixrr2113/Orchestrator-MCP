@@ -34,21 +34,18 @@ The orchestrator now features a complete AI enhancement layer with intelligent r
    npm install
    ```
 
-2. **Configure AI features** (optional but recommended):
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your OpenRouter API key
-   ```
-
-3. **Build the project**:
+2. **Build the project**:
    ```bash
    npm run build
    ```
 
-4. **Run the orchestrator**:
-   ```bash
-   npm start
-   ```
+3. **Configure in your MCP client** (e.g., Claude Desktop, VS Code):
+
+   See the example configuration files in the `examples/` directory:
+   - `examples/claude-desktop-config.json` - For Claude Desktop
+   - `examples/vscode-mcp.json` - For VS Code
+
+4. **Start using the orchestrator** through your MCP client!
 
 ## MCP Integration
 
@@ -96,18 +93,57 @@ Currently configured servers:
 
 ## 🤖 AI Configuration
 
-To enable AI features, you need an OpenRouter API key:
+To enable AI features, you need an OpenRouter API key. Additional API keys can be configured for enhanced integrations:
 
-1. Get an API key from [OpenRouter](https://openrouter.ai/keys)
-2. Set the environment variable:
-   ```bash
-   export OPENROUTER_API_KEY=your_api_key_here
+1. **Required for AI features**: Get an API key from [OpenRouter](https://openrouter.ai/keys)
+2. **Optional integrations**:
+   - GitHub Personal Access Token for GitHub server integration
+   - Semgrep App Token for enhanced security scanning
+3. Configure the API keys in your MCP client settings:
+
+   **For Claude Desktop** (`~/.claude_desktop_config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "Orchestrator MCP": {
+         "command": "node",
+         "args": ["/path/to/augmentv2/dist/index.js"],
+         "env": {
+           "OPENROUTER_API_KEY": "your_api_key_here",
+           "OPENROUTER_DEFAULT_MODEL": "anthropic/claude-3.5-sonnet",
+           "OPENROUTER_MAX_TOKENS": "2000",
+           "OPENROUTER_TEMPERATURE": "0.7"
+         }
+       }
+     }
+   }
    ```
-3. Optionally configure other AI settings:
-   ```bash
-   export OPENROUTER_DEFAULT_MODEL=anthropic/claude-3.5-sonnet
-   export OPENROUTER_MAX_TOKENS=2000
-   export OPENROUTER_TEMPERATURE=0.7
+
+   **For VS Code** (`.vscode/mcp.json`):
+   ```json
+   {
+     "inputs": [
+       {
+         "type": "promptString",
+         "id": "openrouter-key",
+         "description": "OpenRouter API Key",
+         "password": true
+       }
+     ],
+     "servers": {
+       "Orchestrator MCP": {
+         "type": "stdio",
+         "command": "node",
+         "args": ["/path/to/augmentv2/dist/index.js"],
+         "env": {
+           "OPENROUTER_API_KEY": "${input:openrouter-key}",
+           "OPENROUTER_DEFAULT_MODEL": "anthropic/claude-3.5-sonnet",
+           "OPENROUTER_MAX_TOKENS": "2000",
+           "OPENROUTER_TEMPERATURE": "0.7"
+         }
+       }
+     }
+   }
    ```
 
 ### AI Models Supported
@@ -181,13 +217,45 @@ Server configurations are managed in `src/orchestrator/server-configs.ts`. Each 
 - Development phase assignment
 
 ### Environment Variables
-See `.env.example` for all available configuration options.
+All environment variables are configured through your MCP client settings. The following variables are supported:
+
+**AI Configuration (OpenRouter):**
+- `OPENROUTER_API_KEY` (required for AI features) - Your OpenRouter API key
+- `OPENROUTER_DEFAULT_MODEL` (optional) - Default model to use (default: "anthropic/claude-3.5-sonnet")
+- `OPENROUTER_MAX_TOKENS` (optional) - Maximum tokens per request (default: "2000")
+- `OPENROUTER_TEMPERATURE` (optional) - Temperature for AI responses (default: "0.7")
+
+**MCP Server Integrations:**
+- `GITHUB_TOKEN` (optional) - GitHub Personal Access Token for GitHub server integration
+- `SEMGREP_APP_TOKEN` (optional) - Semgrep App Token for enhanced security scanning
+- `SLACK_BOT_TOKEN` (optional) - Slack Bot Token for Slack integration (if enabled)
+- `SLACK_APP_TOKEN` (optional) - Slack App Token for Slack integration (if enabled)
 
 ## 🔧 Development
 
-- `npm run dev` - Watch mode for development
+### Scripts
 - `npm run build` - Build the project
+- `npm run dev` - Watch mode for development (TypeScript compilation)
+- `npm run start` - Start the server (for MCP client use)
+- `npm run start:dev` - Start with .env file support (for local development/testing)
 - `npm test` - Run tests (when available)
+
+### Local Development
+For local development and testing, you can use the development script that loads environment variables from a `.env` file:
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Edit `.env` with your actual API keys
+
+3. Run the development server:
+   ```bash
+   npm run start:dev
+   ```
+
+**Note**: The regular `npm start` command is intended for MCP client use and expects environment variables to be provided by the MCP client configuration.
 
 ## 📝 License
 

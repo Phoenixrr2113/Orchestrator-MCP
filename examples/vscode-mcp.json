@@ -1,0 +1,37 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "openrouter-key",
+      "description": "OpenRouter API Key",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "github-token",
+      "description": "GitHub Personal Access Token (optional)",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "semgrep-token",
+      "description": "Semgrep App Token (optional)",
+      "password": true
+    }
+  ],
+  "servers": {
+    "Orchestrator MCP": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/path/to/augmentv2/dist/index.js"],
+      "env": {
+        "OPENROUTER_API_KEY": "${input:openrouter-key}",
+        "OPENROUTER_DEFAULT_MODEL": "anthropic/claude-3.5-sonnet",
+        "OPENROUTER_MAX_TOKENS": "2000",
+        "OPENROUTER_TEMPERATURE": "0.7",
+        "GITHUB_TOKEN": "${input:github-token}",
+        "SEMGREP_APP_TOKEN": "${input:semgrep-token}"
+      }
+    }
+  }
+}

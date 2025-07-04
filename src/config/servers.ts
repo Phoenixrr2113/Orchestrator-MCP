@@ -70,7 +70,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     enabled: true, // Python package confirmed working!
     runtime: 'uvx',
     command: 'uvx',
-    args: ['mcp-server-git', '--repository', '/Users/randywilson/Desktop/augmentv2'],
+    args: ['mcp-server-git', '--repository', process.cwd()],
     category: 'official',
     language: 'python',
     requiresSetup: true,

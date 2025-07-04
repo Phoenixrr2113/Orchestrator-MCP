@@ -5,7 +5,6 @@
  * Simplified to use modular structure from alternative-plan.md
  */
 
-import 'dotenv/config';
 import { createServer, initializeComponents, startServer } from './server/setup.js';
 import { setupToolListHandler, setupToolCallHandler } from './server/handlers.js';
 import { createLogger } from './utils/logging.js';

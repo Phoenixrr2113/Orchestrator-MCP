@@ -1,9 +1,5 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { generateText, streamText } from 'ai';
-import { config } from 'dotenv';
-import { resolve, join } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 /**
  * AI Client configuration and setup for OpenRouter integration
@@ -165,33 +161,15 @@ export class AIClient {
 
 /**
  * Create and configure AI client with environment variables
+ * Environment variables should be provided by the MCP client configuration
  */
 export function createAIClient(): AIClient {
-  // Explicitly load environment variables to ensure they're available
-  try {
-    // Get the current file's directory in ES modules
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-
-    // Try to load from the project root directory
-    const projectRoot = resolve(__dirname, '../..');
-    const envPath = join(projectRoot, '.env');
-
-    console.error(`🔍 Loading environment from: ${envPath}`);
-    config({ path: envPath });
-  } catch (error) {
-    console.error('Warning: Could not load dotenv from specific path:', error);
-    // Fallback to default dotenv behavior
-    try {
-      config();
-    } catch (fallbackError) {
-      console.error('Fallback dotenv loading also failed:', fallbackError);
-    }
-  }
-
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY environment variable is required. Please check your .env file.');
+    throw new Error(
+      'OPENROUTER_API_KEY environment variable is required. ' +
+      'Please configure it in your MCP client settings under the "env" section.'
+    );
   }
 
   console.error(`🔑 Using OpenRouter API key: ${apiKey.substring(0, 10)}...`);
