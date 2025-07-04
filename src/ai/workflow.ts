@@ -1,6 +1,7 @@
 import { AIClient } from './client.js';
 import { IntelligentRouter, type RoutingDecision } from './router.js';
 import type { OrchestratorManager } from '../orchestrator/manager.js';
+import { toolTracker } from './toolTracker.js';
 
 /**
  * Workflow step execution result
@@ -51,7 +52,10 @@ export class WorkflowEngine {
     executionSummary: string;
   }> {
     const startTime = Date.now();
-    
+
+    // Start tool usage tracking session
+    const sessionId = toolTracker.startSession(userRequest);
+
     // Initialize workflow context
     const context: WorkflowContext = {
       originalRequest: userRequest,
@@ -90,13 +94,29 @@ export class WorkflowEngine {
 
         console.error(`⚡ AI Workflow: Executing step ${i + 1}/${context.steps.length}: ${step.selectedTool}`);
 
+        let executionId: string | null = null;
+
         try {
           // Prepare parameters using AI if needed
           const parameters = await this.prepareStepParameters(step, context);
-          
+
+          // Start tracking this tool execution
+          executionId = toolTracker.startToolExecution(
+            step.selectedTool,
+            parameters,
+            {
+              confidence: step.confidence,
+              reasoning: step.reasoning,
+              stepIndex: i,
+            }
+          );
+
           // Execute the tool
           const result = await this.orchestrator.callTool(step.selectedTool, parameters);
-          
+
+          // End tracking with success
+          toolTracker.endToolExecution(executionId, true, result);
+
           const stepResult: WorkflowStepResult = {
             stepIndex: i,
             tool: step.selectedTool,
@@ -110,18 +130,25 @@ export class WorkflowEngine {
           };
 
           context.results.push(stepResult);
-          
+
           // Update context variables with results
           await this.updateContextVariables(context, stepResult);
 
           console.error(`✅ AI Workflow: Step ${i + 1} completed successfully`);
 
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+
+          // End tracking with failure if we started tracking
+          if (executionId) {
+            toolTracker.endToolExecution(executionId, false, undefined, errorMessage);
+          }
+
           const stepResult: WorkflowStepResult = {
             stepIndex: i,
             tool: step.selectedTool,
             success: false,
-            error: error instanceof Error ? error.message : String(error),
+            error: errorMessage,
             executionTime: Date.now() - stepStartTime,
             metadata: {
               confidence: step.confidence,
@@ -159,6 +186,9 @@ export class WorkflowEngine {
       const totalTime = Date.now() - startTime;
       console.error(`🎉 AI Workflow: Completed in ${totalTime}ms`);
 
+      // End tool tracking session with success
+      toolTracker.endSession('completed');
+
       return {
         success: true,
         finalResult,
@@ -170,6 +200,9 @@ export class WorkflowEngine {
       context.status = 'failed';
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(`💥 AI Workflow: Failed - ${errorMessage}`);
+
+      // End tool tracking session with failure
+      toolTracker.endSession('failed');
 
       return {
         success: false,

@@ -9,6 +9,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { OrchestratorManager } from './orchestrator/manager.js';
 import { AIOrchestrator } from './ai/orchestrator.js';
+import { toolTracker } from './ai/toolTracker.js';
 
 // Initialize the orchestrator manager and AI layer
 const orchestrator = new OrchestratorManager();
@@ -86,6 +87,30 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     {
       name: 'ai_status',
       description: 'Get the status of AI orchestration capabilities and connected servers',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'tool_usage_status',
+      description: 'Get current tool usage tracking status and session information',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'tool_usage_stats',
+      description: 'Get comprehensive tool usage statistics and analytics',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'tool_usage_clear',
+      description: 'Clear tool usage tracking history',
       inputSchema: {
         type: 'object',
         properties: {},
@@ -267,6 +292,148 @@ ${status.aiAvailable ?
             {
               type: 'text',
               text: `Error getting AI status: ${error}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+    case 'tool_usage_status':
+      try {
+        const currentSession = toolTracker.getCurrentSession();
+
+        if (!currentSession) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `🔧 Tool Usage Tracking Status
+
+No active tracking session.
+
+Recent activity: Use tool_usage_stats to see historical data.
+Start a new session by using the ai_process tool.`,
+              },
+            ],
+          };
+        }
+
+        const runningTime = Date.now() - currentSession.startTime;
+        const completedTools = currentSession.executions.filter(e => e.endTime).length;
+        const runningTools = currentSession.executions.filter(e => !e.endTime).length;
+        const successfulTools = currentSession.executions.filter(e => e.success === true).length;
+        const failedTools = currentSession.executions.filter(e => e.success === false).length;
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `🔧 Tool Usage Tracking Status
+
+📊 Current Session: ${currentSession.sessionId}
+Request: "${currentSession.userRequest}"
+Status: ${currentSession.status}
+Running Time: ${runningTime}ms
+
+🛠️ Tool Executions:
+- Completed: ${completedTools}
+- Currently Running: ${runningTools}
+- Successful: ${successfulTools}
+- Failed: ${failedTools}
+
+Recent Tools:
+${currentSession.executions.slice(-5).map(e =>
+  `• ${e.tool} (${e.duration ? `${e.duration}ms` : 'running...'}) ${e.success === true ? '✅' : e.success === false ? '❌' : '⏳'}`
+).join('\n')}
+
+Use tool_usage_stats for comprehensive analytics.`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error getting tool usage status: ${error}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+    case 'tool_usage_stats':
+      try {
+        const stats = toolTracker.getUsageStats();
+
+        const successRate = stats.totalExecutions > 0
+          ? ((stats.successfulExecutions / stats.totalExecutions) * 100).toFixed(1)
+          : '0';
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `📊 Tool Usage Analytics
+
+🔢 Overall Statistics:
+- Total Executions: ${stats.totalExecutions}
+- Successful: ${stats.successfulExecutions} (${successRate}%)
+- Failed: ${stats.failedExecutions}
+- Average Duration: ${stats.averageDuration.toFixed(1)}ms
+
+🏆 Most Used Tools:
+${stats.mostUsedTools.slice(0, 5).map((tool, i) =>
+  `${i + 1}. ${tool.tool}: ${tool.count} uses (avg: ${tool.avgDuration.toFixed(1)}ms)`
+).join('\n')}
+
+📈 Recent Sessions:
+${stats.recentSessions.slice(0, 3).map(session => {
+  const duration = session.totalDuration || (Date.now() - session.startTime);
+  const successCount = session.executions.filter(e => e.success).length;
+  return `• ${session.sessionId}: ${session.executions.length} tools, ${successCount} successful (${duration}ms)`;
+}).join('\n')}
+
+Use tool_usage_status to see current session details.`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error getting tool usage stats: ${error}`,
+            },
+          ],
+          isError: true,
+        };
+      }
+
+    case 'tool_usage_clear':
+      try {
+        toolTracker.clearHistory();
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `🧹 Tool Usage History Cleared
+
+All tracking data has been cleared:
+- Session history: Cleared
+- Usage statistics: Reset
+- Current session: Ended (if active)
+
+Tool tracking will continue for new sessions.`,
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Error clearing tool usage history: ${error}`,
             },
           ],
           isError: true,

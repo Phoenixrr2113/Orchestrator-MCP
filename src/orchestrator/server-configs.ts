@@ -149,26 +149,39 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'python-execution': {
     name: 'python-execution',
     description: 'Secure Python code execution sandbox via Pydantic AI',
-    enabled: false,
-    runtime: 'uvx',
-    command: 'uvx',
-    args: ['pydantic-ai-mcp-run-python'],
+    enabled: false, // Phase 5 - Requires Deno runtime, complex setup
+    runtime: 'node',
+    command: 'deno',
+    args: ['run', '-N', '-R=node_modules', '-W=node_modules', '--node-modules-dir=auto', 'jsr:@pydantic/mcp-run-python', 'stdio'],
     category: 'official',
     language: 'python',
+    requiresSetup: true,
+    phase: 5,
+  },
+
+  'sqlite': {
+    name: 'sqlite',
+    description: 'Local SQLite database interaction and business intelligence',
+    enabled: true, // Phase 5 - ENABLED for database operations!
+    runtime: 'npm',
+    command: 'npx',
+    args: ['@modelcontextprotocol/server-sqlite'],
+    category: 'official',
+    language: 'typescript',
     phase: 5,
   },
 
   'semgrep': {
     name: 'semgrep',
     description: 'Security vulnerability scanning for code analysis',
-    enabled: false,
-    runtime: 'npm',
-    command: 'npx',
-    args: ['@semgrep/mcp'],
-    category: 'community',
-    language: 'typescript',
+    enabled: true, // Phase 5 - ENABLED for security analysis!
+    runtime: 'uvx',
+    command: 'uvx',
+    args: ['semgrep-mcp'],
+    category: 'official',
+    language: 'python',
     env: {
-      'SEMGREP_API_KEY': 'optional',
+      'SEMGREP_APP_TOKEN': 'optional',
     },
     phase: 5,
   },

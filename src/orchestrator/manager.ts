@@ -1,6 +1,7 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { getEnabledServers, type EnhancedServerConfig, validateServerConfig } from './server-configs.js';
+import { toolTracker } from '../ai/toolTracker.js';
 
 /**
  * Represents a connected MCP server
@@ -135,13 +136,26 @@ export class OrchestratorManager {
       throw new Error(`Server ${serverName} is not connected`);
     }
 
-    // Call the tool on the appropriate server
-    const result = await server.client.callTool({
-      name: originalToolName,
-      arguments: args,
-    });
+    // Start tracking this tool execution (for direct calls outside of AI workflow)
+    const executionId = toolTracker.startToolExecution(toolName, args);
 
-    return result;
+    try {
+      // Call the tool on the appropriate server
+      const result = await server.client.callTool({
+        name: originalToolName,
+        arguments: args,
+      });
+
+      // End tracking with success
+      toolTracker.endToolExecution(executionId, true, result);
+
+      return result;
+    } catch (error) {
+      // End tracking with failure
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      toolTracker.endToolExecution(executionId, false, undefined, errorMessage);
+      throw error;
+    }
   }
 
   /**
