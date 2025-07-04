@@ -114,6 +114,24 @@ export class IntelligentRouter {
       case 'sequential-thinking':
         capabilities.push('complex_reasoning', 'problem_solving', 'step_by_step_analysis');
         break;
+      case 'brave-search':
+      case 'duckduckgo-search':
+      case 'tavily-search':
+        capabilities.push('web_search', 'search_results', 'information_retrieval', 'real_time_data');
+        break;
+      case 'postgres':
+      case 'sqlite':
+        capabilities.push('database_access', 'sql_queries', 'data_analysis', 'schema_inspection');
+        break;
+      case 'leetcode':
+        capabilities.push('coding_practice', 'algorithm_problems', 'programming_challenges');
+        break;
+      case 'context7':
+        capabilities.push('documentation_access', 'library_information', 'code_references');
+        break;
+      case 'mastra-docs':
+        capabilities.push('knowledge_base', 'documentation_search', 'technical_information');
+        break;
     }
 
     // Tool-specific capabilities based on name and description

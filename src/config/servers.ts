@@ -167,7 +167,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'sqlite': {
     name: 'sqlite',
     description: 'Local SQLite database interaction and business intelligence',
-    enabled: true, // Phase 5 - ENABLED for database operations!
+    enabled: false, // DISABLED - Package not available yet
     runtime: 'npm',
     command: 'npx',
     args: ['@modelcontextprotocol/server-sqlite'],
@@ -196,7 +196,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'postgres': {
     name: 'postgres',
     description: 'Read-only database access with schema inspection',
-    enabled: false,
+    enabled: false, // DISABLED - Requires DATABASE_URL
     runtime: 'npm',
     command: 'npx',
     args: ['@modelcontextprotocol/server-postgres'],
@@ -212,7 +212,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'brave-search': {
     name: 'brave-search',
     description: 'Web and local search using Brave Search API',
-    enabled: false,
+    enabled: false, // DISABLED - Requires BRAVE_API_KEY
     runtime: 'npm',
     command: 'npx',
     args: ['@modelcontextprotocol/server-brave-search'],
@@ -225,15 +225,71 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     phase: 6,
   },
 
+  'duckduckgo-search': {
+    name: 'duckduckgo-search',
+    description: 'Privacy-focused web search using DuckDuckGo and Felo AI',
+    enabled: true, // ENABLED - Phase 6 search integration!
+    runtime: 'npm',
+    command: 'npx',
+    args: ['-y', '@oevortex/ddg_search'],
+    category: 'community',
+    language: 'typescript',
+    requiresSetup: false, // No API key required
+    phase: 6,
+  },
+
+  'tavily-search': {
+    name: 'tavily-search',
+    description: 'Advanced search and data extraction using Tavily API',
+    enabled: false, // DISABLED - Requires TAVILY_API_KEY
+    runtime: 'npm',
+    command: 'npx',
+    args: ['-y', 'mcp-tavily-search'],
+    category: 'community',
+    language: 'typescript',
+    env: {
+      'TAVILY_API_KEY': 'required',
+    },
+    requiresSetup: true,
+    phase: 6,
+  },
+
   'leetcode': {
     name: 'leetcode',
     description: 'LeetCode problem solving and coding practice integration',
-    enabled: false,
+    enabled: false, // DISABLED - Package not found
     runtime: 'npm',
     command: 'npx',
-    args: ['doggybee-mcp-server-leetcode'],
+    args: ['-y', 'doggybee-mcp-server-leetcode'],
     category: 'community',
     language: 'typescript',
+    requiresSetup: false,
+    phase: 6,
+  },
+
+  'context7': {
+    name: 'context7',
+    description: 'Up-to-date code documentation and library information for LLMs',
+    enabled: false, // DISABLED - Requires arguments
+    runtime: 'npm',
+    command: 'npx',
+    args: ['-y', 'context7'],
+    category: 'community',
+    language: 'typescript',
+    requiresSetup: true,
+    phase: 6,
+  },
+
+  'mastra-docs': {
+    name: 'mastra-docs',
+    description: 'Access to Mastra.ai complete knowledge base and documentation',
+    enabled: false, // Disabled - specific to Mastra.ai
+    runtime: 'npm',
+    command: 'npx',
+    args: ['-y', '@mastra/mcp-docs-server'],
+    category: 'community',
+    language: 'typescript',
+    requiresSetup: false,
     phase: 6,
   },
 

@@ -115,9 +115,7 @@ This resource guides our server selection to focus on **coding-relevant tools** 
 ### Phase 6: Extended Ecosystem Integration (Priority 3)
 - [ ] **Database Tools**: Integrate PostgreSQL/SQLite servers for data persistence
 - [ ] **Search Integration**: Add Brave/DuckDuckGo/Tavily for enhanced search capabilities
-- [ ] **Documentation**: Integrate documentation servers for knowledge access
-- [ ] **Communication**: Slack, Discord, email servers for team collaboration
-- [ ] **LeetCode Integration**: Add `doggybee/mcp-server-leetcode` for coding practice
+- [ ] **Context7**: Integrate documentation servers for knowledge access
 - [ ] Test complex multi-server workflows
 
 ### Phase 7: Workflow Intelligence (Priority 3)
