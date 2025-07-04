@@ -2,6 +2,8 @@
  * Tool usage tracking and logging system
  */
 
+
+
 export interface ToolExecution {
   id: string;
   tool: string;
@@ -279,14 +281,14 @@ export class ToolUsageTracker {
    * Generate a unique session ID
    */
   private generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   /**
    * Generate a unique execution ID
    */
   private generateExecutionId(): string {
-    return `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `exec_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
   }
 
   /**

@@ -2,9 +2,8 @@
  * Quality analysis functions
  */
 
-import { createLogger } from '../../utils/logging.js';
-
-const logger = createLogger('quality-analyzers');
+import type { QualityIssue } from './types.js';
+import { QUALITY_THRESHOLDS, FILE_ANALYSIS } from '../../constants/quality.js';
 
 /**
  * Analyze file structure and complexity
@@ -12,37 +11,49 @@ const logger = createLogger('quality-analyzers');
 export async function analyzeFileStructure(filePaths: string[]): Promise<{
   readabilityScore: number;
   complexity: number;
-  issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }>;
+  issues: QualityIssue[];
 }> {
-  const issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }> = [];
+  const issues: QualityIssue[] = [];
   let totalComplexity = 0;
-  let readabilityScore = 80; // Base score
+  let readabilityScore = QUALITY_THRESHOLDS.READABILITY.BASE_SCORE;
   
-  // Analyze each file (would use filesystem MCP server to read files)
+  // Analyze each file for basic structural issues
   for (const filePath of filePaths) {
-    // Simulate file analysis
-    const fileComplexity = Math.floor(Math.random() * 20) + 5;
+    // Basic heuristic analysis based on file patterns
+    let fileComplexity = FILE_ANALYSIS.COMPLEXITY_WEIGHTS.BASE;
+
+    // Increase complexity for certain file types
+    if (filePath.includes('manager') || filePath.includes('orchestrator')) {
+      fileComplexity += FILE_ANALYSIS.COMPLEXITY_WEIGHTS.MANAGER;
+    }
+    if (filePath.includes('handler') || filePath.includes('router')) {
+      fileComplexity += FILE_ANALYSIS.COMPLEXITY_WEIGHTS.HANDLER;
+    }
+    if (filePath.includes('workflow') || filePath.includes('engine')) {
+      fileComplexity += FILE_ANALYSIS.COMPLEXITY_WEIGHTS.WORKFLOW;
+    }
+
     totalComplexity += fileComplexity;
-    
-    if (fileComplexity > 15) {
+
+    if (fileComplexity > QUALITY_THRESHOLDS.COMPLEXITY.HIGH_THRESHOLD) {
       issues.push({
         file: filePath,
         type: 'warning',
         category: 'complexity',
-        description: 'High cyclomatic complexity detected',
-        suggestion: 'Consider breaking down this file into smaller functions',
+        description: 'Potentially high complexity file detected',
+        suggestion: 'Consider breaking down this file into smaller, focused modules',
       });
-      readabilityScore -= 5;
+      readabilityScore -= QUALITY_THRESHOLDS.READABILITY.COMPLEXITY_PENALTY;
     }
-    
-    // Check file size (would use actual file reading)
-    if (filePath.includes('manager') || filePath.includes('orchestrator')) {
+
+    // Check for files that typically grow large
+    if (filePath.includes('manager') || filePath.includes('orchestrator') || filePath.includes('index')) {
       issues.push({
         file: filePath,
         type: 'suggestion',
         category: 'maintainability',
-        description: 'Large file detected - consider modularization',
-        suggestion: 'Split large files into focused modules',
+        description: 'File type prone to growth - monitor size',
+        suggestion: 'Consider modular architecture to prevent file bloat',
       });
     }
   }
@@ -59,34 +70,46 @@ export async function analyzeFileStructure(filePaths: string[]): Promise<{
  */
 export async function analyzeSecurityIssues(filePaths: string[]): Promise<{
   score: number;
-  issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }>;
+  issues: QualityIssue[];
 }> {
-  const issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }> = [];
-  let securityScore = 85; // Base security score
+  const issues: QualityIssue[] = [];
+  let securityScore = QUALITY_THRESHOLDS.SECURITY.BASE_SCORE;
   
-  // TODO: Use Semgrep MCP server to scan for security issues
-  // For now, simulate some common security checks
-  
+  // Basic security analysis based on file patterns and common issues
   for (const filePath of filePaths) {
-    if (filePath.includes('config') || filePath.includes('env')) {
+    // Check for configuration files that might contain secrets
+    if (filePath.includes('config') || filePath.includes('env') || filePath.includes('.env')) {
       issues.push({
         file: filePath,
         type: 'warning',
         category: 'security',
         description: 'Configuration file may contain sensitive data',
-        suggestion: 'Ensure no secrets are hardcoded in configuration files',
+        suggestion: 'Ensure no secrets are hardcoded; use environment variables',
       });
-      securityScore -= 5;
+      securityScore -= QUALITY_THRESHOLDS.SECURITY.CONFIG_FILE_PENALTY;
     }
-    
-    if (filePath.includes('server') || filePath.includes('api')) {
+
+    // Check server and API files for security considerations
+    if (filePath.includes('server') || filePath.includes('api') || filePath.includes('handler')) {
       issues.push({
         file: filePath,
         type: 'suggestion',
         category: 'security',
         description: 'Server file should implement proper input validation',
-        suggestion: 'Add input validation and sanitization',
+        suggestion: 'Implement input validation, sanitization, and error handling',
       });
+    }
+
+    // Check for authentication-related files
+    if (filePath.includes('auth') || filePath.includes('login') || filePath.includes('token')) {
+      issues.push({
+        file: filePath,
+        type: 'warning',
+        category: 'security',
+        description: 'Authentication file requires security review',
+        suggestion: 'Ensure secure authentication practices and token handling',
+      });
+      securityScore -= QUALITY_THRESHOLDS.SECURITY.AUTH_FILE_PENALTY;
     }
   }
   
@@ -102,10 +125,10 @@ export async function analyzeSecurityIssues(filePaths: string[]): Promise<{
 export async function analyzeMaintainability(filePaths: string[]): Promise<{
   score: number;
   duplication: number;
-  issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }>;
+  issues: QualityIssue[];
 }> {
-  const issues: Array<{ file: string; line?: number; type: 'error' | 'warning' | 'suggestion'; category: string; description: string; suggestion?: string; }> = [];
-  let maintainabilityScore = 75;
+  const issues: QualityIssue[] = [];
+  let maintainabilityScore = QUALITY_THRESHOLDS.MAINTAINABILITY.BASE_SCORE;
   let duplicationScore = 10; // Percentage of duplicated code
   
   // Check for common maintainability issues
@@ -118,12 +141,12 @@ export async function analyzeMaintainability(filePaths: string[]): Promise<{
         description: 'TODO/FIXME comments found',
         suggestion: 'Address pending TODO items to improve code quality',
       });
-      maintainabilityScore -= 2;
+      maintainabilityScore -= QUALITY_THRESHOLDS.MAINTAINABILITY.TODO_PENALTY;
     }
     
     // Check for TypeScript usage (good for maintainability)
     if (filePath.endsWith('.ts')) {
-      maintainabilityScore += 5;
+      maintainabilityScore += QUALITY_THRESHOLDS.MAINTAINABILITY.TYPESCRIPT_BONUS;
     }
   }
   

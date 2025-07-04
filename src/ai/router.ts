@@ -1,5 +1,6 @@
 import { AIClient } from './client.js';
 import type { ConnectedServer } from '../orchestrator/manager.js';
+import { createLogger } from '../utils/logging.js';
 
 /**
  * Tool routing decision with confidence and reasoning
@@ -12,6 +13,8 @@ export interface RoutingDecision {
   alternativeTools: string[];
   parameters: Record<string, any>;
 }
+
+const logger = createLogger('intelligent-router');
 
 /**
  * Intelligent router that uses AI to select the best tools for user requests
@@ -267,14 +270,14 @@ Prioritize tools that provide the most value for the user's specific request.`,
         const decisions = JSON.parse(response);
         return Array.isArray(decisions) ? decisions : [decisions];
       } catch (parseError) {
-        console.error('Failed to parse AI routing response:', parseError);
-        console.error('Raw response:', response);
-        
+        logger.error('Failed to parse AI routing response', parseError as Error);
+        logger.debug('Raw response', { response });
+
         // Fallback to simple tool matching
         return this.fallbackToolSelection(userRequest, toolCatalog);
       }
     } catch (error) {
-      console.error('AI routing failed:', error);
+      logger.error('AI routing failed', error as Error);
       return this.fallbackToolSelection(userRequest, toolCatalog);
     }
   }
@@ -333,16 +336,16 @@ Prioritize tools that provide the most value for the user's specific request.`,
     return decisions.filter(decision => {
       const server = availableServers.get(decision.serverName);
       if (!server || !server.connected) {
-        console.warn(`Server ${decision.serverName} is not available`);
+        logger.warn(`Server ${decision.serverName} is not available`);
         return false;
       }
 
-      const toolExists = server.tools.some(tool => 
+      const toolExists = server.tools.some(tool =>
         `${decision.serverName}_${tool.name}` === decision.selectedTool
       );
-      
+
       if (!toolExists) {
-        console.warn(`Tool ${decision.selectedTool} not found on server ${decision.serverName}`);
+        logger.warn(`Tool ${decision.selectedTool} not found on server ${decision.serverName}`);
         return false;
       }
 

@@ -125,6 +125,47 @@ export function extractErrorDetails(error: unknown): {
 }
 
 /**
+ * Check if error is retryable based on common patterns
+ */
+export function isRetryableError(error: unknown): boolean {
+  const errorMessage = extractErrorDetails(error).message.toLowerCase();
+
+  const retryablePatterns = [
+    /timeout/i,
+    /connection/i,
+    /network/i,
+    /temporary/i,
+    /rate limit/i,
+    /503/,
+    /502/,
+    /504/,
+  ];
+
+  return retryablePatterns.some(pattern => pattern.test(errorMessage));
+}
+
+/**
+ * Categorize error type for better handling
+ */
+export function categorizeError(error: unknown): 'transient' | 'systematic' | 'configuration' | 'unknown' {
+  const errorMessage = extractErrorDetails(error).message.toLowerCase();
+
+  if (isRetryableError(error)) {
+    return 'transient';
+  }
+
+  if (/configuration|auth|permission|credential/i.test(errorMessage)) {
+    return 'configuration';
+  }
+
+  if (/validation|parameter|argument/i.test(errorMessage)) {
+    return 'systematic';
+  }
+
+  return 'unknown';
+}
+
+/**
  * Create a safe error response for MCP
  */
 export function createErrorResponse(error: unknown): {
@@ -132,7 +173,7 @@ export function createErrorResponse(error: unknown): {
   isError: true;
 } {
   const details = extractErrorDetails(error);
-  
+
   return {
     content: [
       {

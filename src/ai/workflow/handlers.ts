@@ -6,7 +6,7 @@
 import type { WorkflowContext, WorkflowStepResult } from './context.js';
 import type { RoutingDecision } from '../router.js';
 import { createLogger } from '../../utils/logging.js';
-import { WorkflowExecutionError } from '../../utils/errors.js';
+import { isRetryableError, categorizeError } from '../../utils/errors.js';
 
 const logger = createLogger('workflow-handlers');
 
@@ -41,7 +41,7 @@ export class WorkflowFailureHandler {
    */
   async handleStepFailure(
     failedStep: WorkflowStepResult,
-    context: WorkflowContext,
+    _context: WorkflowContext,
     options: RecoveryOptions
   ): Promise<{
     shouldContinue: boolean;
@@ -176,19 +176,7 @@ export class WorkflowFailureHandler {
    */
   private isRetryableError(error?: string): boolean {
     if (!error) return false;
-
-    const retryablePatterns = [
-      /timeout/i,
-      /connection/i,
-      /network/i,
-      /temporary/i,
-      /rate limit/i,
-      /503/,
-      /502/,
-      /504/,
-    ];
-
-    return retryablePatterns.some(pattern => pattern.test(error));
+    return isRetryableError(new Error(error));
   }
 
   /**
@@ -205,15 +193,17 @@ export class WorkflowFailureHandler {
     const errors = failedResults.map(r => r.error || 'Unknown').filter(Boolean);
     const commonErrors = this.findCommonErrors(errors);
 
-    // Determine failure type
+    // Determine failure type using standardized error categorization
     let failureType: 'transient' | 'systematic' | 'configuration' | 'unknown' = 'unknown';
-    
-    if (commonErrors.some(error => this.isRetryableError(error))) {
-      failureType = 'transient';
-    } else if (affectedTools.length === 1 && failedResults.length > 1) {
-      failureType = 'systematic';
-    } else if (errors.some(error => /configuration|auth|permission/i.test(error))) {
-      failureType = 'configuration';
+
+    if (errors.length > 0) {
+      // Use the first error to determine the primary failure type
+      failureType = categorizeError(new Error(errors[0]));
+
+      // Override with systematic if multiple failures from same tool
+      if (affectedTools.length === 1 && failedResults.length > 1) {
+        failureType = 'systematic';
+      }
     }
 
     const isRecoverable = failureType === 'transient' || 

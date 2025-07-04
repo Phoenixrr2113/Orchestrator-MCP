@@ -3,9 +3,7 @@
  */
 
 import type { QualityAssessment } from './types.js';
-import { createLogger } from '../../utils/logging.js';
-
-const logger = createLogger('quality-metrics');
+import { TECHNICAL_DEBT } from '../../constants/quality.js';
 
 /**
  * Calculate testability score
@@ -81,18 +79,15 @@ export function calculateTestCoverage(filePaths: string[]): number {
  */
 export function calculateTechnicalDebt(assessment: QualityAssessment): number {
   const issues = assessment.issues;
-  const errorWeight = 3;
-  const warningWeight = 2;
-  const suggestionWeight = 1;
-  
+
   const debtScore = issues.reduce((total, issue) => {
     switch (issue.type) {
-      case 'error': return total + errorWeight;
-      case 'warning': return total + warningWeight;
-      case 'suggestion': return total + suggestionWeight;
+      case 'error': return total + TECHNICAL_DEBT.WEIGHTS.ERROR;
+      case 'warning': return total + TECHNICAL_DEBT.WEIGHTS.WARNING;
+      case 'suggestion': return total + TECHNICAL_DEBT.WEIGHTS.SUGGESTION;
       default: return total;
     }
   }, 0);
-  
-  return Math.min(100, debtScore);
+
+  return Math.min(TECHNICAL_DEBT.RANGES.CRITICAL, debtScore);
 }

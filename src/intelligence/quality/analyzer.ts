@@ -30,7 +30,7 @@ export async function assessCodeQuality(filePaths: string[]): Promise<QualityAss
       issues: [],
       metrics: {
         cyclomaticComplexity: 0,
-        codeduplication: 0,
+        codeDuplication: 0,
         testCoverage: 0,
         technicalDebt: 0,
       },
@@ -69,7 +69,7 @@ export async function assessCodeQuality(filePaths: string[]): Promise<QualityAss
     // Update metrics
     assessment.metrics = {
       cyclomaticComplexity: structureAnalysis.complexity,
-      codeduplication: maintainabilityAnalysis.duplication,
+      codeDuplication: maintainabilityAnalysis.duplication,
       testCoverage: calculateTestCoverage(filePaths),
       technicalDebt: calculateTechnicalDebt(assessment),
     };

@@ -3,6 +3,18 @@
  */
 
 /**
+ * Quality issue definition
+ */
+export interface QualityIssue {
+  file: string;
+  line?: number;
+  type: 'error' | 'warning' | 'suggestion';
+  category: string;
+  description: string;
+  suggestion?: string;
+}
+
+/**
  * Quality assessment result
  */
 export interface QualityAssessment {
@@ -14,17 +26,10 @@ export interface QualityAssessment {
     performance: number;
     security: number;
   };
-  issues: Array<{
-    file: string;
-    line?: number;
-    type: 'error' | 'warning' | 'suggestion';
-    category: string;
-    description: string;
-    suggestion?: string;
-  }>;
+  issues: QualityIssue[];
   metrics: {
     cyclomaticComplexity: number;
-    codeduplication: number;
+    codeDuplication: number;
     testCoverage: number;
     technicalDebt: number;
   };
