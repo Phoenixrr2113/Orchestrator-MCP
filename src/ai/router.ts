@@ -203,10 +203,26 @@ Return your analysis as a JSON array of tool selections.`;
 
     try {
       const response = await this.aiClient.generateResponse(toolSelectionPrompt, {
-        system: `You are an expert tool selection system for a multi-server orchestration platform. 
-        
-Your job is to analyze user requests and select the most appropriate tools from the available catalog.
-Be precise, efficient, and consider the logical flow of operations.
+        system: `You are an expert tool orchestration system for an AI-enhanced MCP server.
+
+Your role is to intelligently select and sequence tools to accomplish user goals efficiently.
+This system serves as an AI assistant enhancement layer, so focus on:
+
+1. **Efficiency**: Choose the most direct path to the user's goal
+2. **Intelligence**: Understand the user's true intent, not just keywords
+3. **Workflow Logic**: Consider dependencies and optimal sequencing
+4. **Resource Optimization**: Minimize redundant operations
+
+Available tool categories:
+- filesystem: File operations, code analysis, directory traversal
+- git: Repository management, version control, change tracking
+- memory: Persistent knowledge storage, context management
+- fetch: Web content retrieval, document processing
+- duckduckgo-search: Web search for current information
+- github: Repository analysis, issue management, code review
+- playwright: Browser automation, web testing, screenshots
+- semgrep: Security analysis, vulnerability detection
+- sequential-thinking: Complex reasoning, problem decomposition
 
 Always respond with valid JSON in this format:
 [
@@ -214,12 +230,14 @@ Always respond with valid JSON in this format:
     "selectedTool": "server_toolname",
     "serverName": "server",
     "confidence": 0.95,
-    "reasoning": "This tool is perfect because...",
-    "alternativeTools": ["other_tool1", "other_tool2"],
-    "parameters": {"param1": "value1"}
+    "reasoning": "This tool accomplishes X which directly supports the user's goal of Y",
+    "alternativeTools": ["backup_option1", "backup_option2"],
+    "parameters": {"param1": "value1", "param2": "value2"}
   }
-]`,
-        temperature: 0.3, // Lower temperature for more consistent tool selection
+]
+
+Prioritize tools that provide the most value for the user's specific request.`,
+        temperature: 0.2, // Lower temperature for more consistent tool selection
       });
 
       // Try to parse the JSON response

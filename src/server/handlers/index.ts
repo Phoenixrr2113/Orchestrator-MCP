@@ -8,19 +8,8 @@ export { setupToolListHandler } from './tools.js';
 export { setupToolCallHandler } from './dispatcher.js';
 
 // Individual handlers (for advanced usage)
-export { 
-  handleTestConnection, 
-  handleGetInfo, 
-  handleAIProcess, 
-  handleToolUsageStats, 
-  handleToolUsageClear 
+export {
+  handleGetInfo,
+  handleAIProcess,
+  handleAIStatus
 } from './orchestrator.js';
-
-export { 
-  handleAnalyzeCodebase, 
-  handleExtractArchitecturalInsights, 
-  handleAssessCodeQuality, 
-  handleAnalyzeArchitecture, 
-  handleDetectAntiPatterns, 
-  handleGenerateArchitecturalRoadmap 
-} from './intelligence.js';

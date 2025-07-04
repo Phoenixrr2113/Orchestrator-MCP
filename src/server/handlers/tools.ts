@@ -18,160 +18,52 @@ export function setupToolListHandler(
 ): void {
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     try {
-      // Get tools from all connected servers
-      const allTools = await orchestrator.getAllTools();
-      
-      // Add orchestrator-specific tools
+      // Streamlined tools focused on AI enhancement capabilities
+      // Each tool provides unique value that enhances AI assistant capabilities
       const orchestratorTools = [
         {
-          name: 'test_connection',
-          description: 'Test that Orchestrator MCP is working and connected',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              message: {
-                type: 'string',
-                description: 'Test message to echo back',
-                default: 'Hello from Orchestrator!',
-              },
-            },
-          },
-        },
-        {
-          name: 'get_info',
-          description: 'Get information about the Orchestrator MCP server and connected servers',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-          },
-        },
-        {
           name: 'ai_process',
-          description: 'Process requests using AI orchestration with intelligent tool selection',
+          description: 'Primary AI orchestration interface - intelligently processes complex requests by automatically selecting and coordinating multiple tools. Handles file operations, git management, web search, web fetching, browser automation, security analysis, and more. Describe your goal naturally - the AI will determine the best approach and execute multi-step workflows.',
           inputSchema: {
             type: 'object',
             properties: {
               request: {
                 type: 'string',
-                description: 'The request to process using AI orchestration',
+                description: 'Natural language description of what you want to accomplish. Examples: "Search for React 19 features and analyze code examples", "Find all TypeScript files with TODO comments", "Check git status and create a summary of recent changes", "Fetch the latest Next.js documentation and extract routing information"',
               },
             },
             required: ['request'],
+            additionalProperties: false,
+            $schema: 'http://json-schema.org/draft-07/schema#',
           },
         },
         {
-          name: 'tool_usage_stats',
-          description: 'Get statistics about tool usage and performance',
+          name: 'get_info',
+          description: 'System introspection - discover available capabilities, connected servers, and tool inventory. Use this to understand what the orchestrator can do before making complex requests.',
           inputSchema: {
             type: 'object',
             properties: {},
+            additionalProperties: false,
+            $schema: 'http://json-schema.org/draft-07/schema#',
           },
         },
         {
-          name: 'tool_usage_clear',
-          description: 'Clear tool usage tracking history',
+          name: 'ai_status',
+          description: 'Health monitoring - check AI orchestration system status, model configuration, and capability testing results. Useful for debugging or verifying system readiness.',
           inputSchema: {
             type: 'object',
             properties: {},
-          },
-        },
-        {
-          name: 'analyze_codebase',
-          description: 'Analyze codebase structure, complexity, patterns, and quality',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rootPath: {
-                type: 'string',
-                description: 'Root path of the codebase to analyze',
-                default: '.',
-              },
-            },
-          },
-        },
-        {
-          name: 'extract_architectural_insights',
-          description: 'Extract architectural insights from codebase analysis',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rootPath: {
-                type: 'string',
-                description: 'Root path of the codebase to analyze',
-                default: '.',
-              },
-            },
-          },
-        },
-        {
-          name: 'assess_code_quality',
-          description: 'Assess code quality across multiple dimensions with AI-powered analysis',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              filePaths: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'Array of file paths to analyze for quality',
-                default: [],
-              },
-            },
-          },
-        },
-        {
-          name: 'analyze_architecture',
-          description: 'Analyze system architecture and design patterns with AI-powered insights',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rootPath: {
-                type: 'string',
-                description: 'Root path of the codebase to analyze',
-                default: '.',
-              },
-            },
-          },
-        },
-        {
-          name: 'detect_anti_patterns',
-          description: 'Detect architectural anti-patterns and calculate risk scores',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rootPath: {
-                type: 'string',
-                description: 'Root path of the codebase to analyze',
-                default: '.',
-              },
-            },
-          },
-        },
-        {
-          name: 'generate_architectural_roadmap',
-          description: 'Generate architectural improvement roadmap with phases and tasks',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              rootPath: {
-                type: 'string',
-                description: 'Root path of the codebase to analyze',
-                default: '.',
-              },
-            },
+            additionalProperties: false,
+            $schema: 'http://json-schema.org/draft-07/schema#',
           },
         },
       ];
 
-      // Get tools from all connected servers
-      const serverTools = await orchestrator.getAllTools();
-      
-      // Combine all tools
-      const combinedTools = [...orchestratorTools, ...serverTools];
-      
-      logger.info(`Returning ${combinedTools.length} total tools (${orchestratorTools.length} orchestrator + ${serverTools.length} server tools)`);
-      
+      // Only return orchestrator tools - internal server tools are handled transparently
+      logger.info(`Returning ${orchestratorTools.length} orchestrator tools`);
+
       return {
-        tools: combinedTools,
+        tools: orchestratorTools,
       };
     } catch (error) {
       logger.error('Failed to list tools:', error as Error);

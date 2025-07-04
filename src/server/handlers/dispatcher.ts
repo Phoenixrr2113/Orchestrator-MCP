@@ -8,23 +8,12 @@ import { OrchestratorManager } from '../../orchestrator/manager.js';
 import { AIOrchestrator } from '../../ai/orchestrator.js';
 import { createLogger, createErrorResponse } from '../../utils/index.js';
 
-// Import handlers
-import { 
-  handleTestConnection, 
-  handleGetInfo, 
-  handleAIProcess, 
-  handleToolUsageStats, 
-  handleToolUsageClear 
+// Import handlers for streamlined tool set
+import {
+  handleGetInfo,
+  handleAIProcess,
+  handleAIStatus
 } from './orchestrator.js';
-
-import { 
-  handleAnalyzeCodebase, 
-  handleExtractArchitecturalInsights, 
-  handleAssessCodeQuality, 
-  handleAnalyzeArchitecture, 
-  handleDetectAntiPatterns, 
-  handleGenerateArchitecturalRoadmap 
-} from './intelligence.js';
 
 const logger = createLogger('tool-dispatcher');
 
@@ -42,41 +31,17 @@ export function setupToolCallHandler(
     try {
       logger.info(`Handling tool call: ${name}`);
       
-      // Route to appropriate handler
+      // Route to streamlined tool handlers
       switch (name) {
-        case 'test_connection':
-          return handleTestConnection(args);
-        
-        case 'get_info':
-          return handleGetInfo(orchestrator);
-        
         case 'ai_process':
           return handleAIProcess(args, aiOrchestrator);
-        
-        case 'tool_usage_stats':
-          return handleToolUsageStats();
-        
-        case 'tool_usage_clear':
-          return handleToolUsageClear();
-        
-        case 'analyze_codebase':
-          return handleAnalyzeCodebase(args);
-        
-        case 'extract_architectural_insights':
-          return handleExtractArchitecturalInsights(args);
-        
-        case 'assess_code_quality':
-          return handleAssessCodeQuality(args);
-        
-        case 'analyze_architecture':
-          return handleAnalyzeArchitecture(args);
-        
-        case 'detect_anti_patterns':
-          return handleDetectAntiPatterns(args);
-        
-        case 'generate_architectural_roadmap':
-          return handleGenerateArchitecturalRoadmap(args);
-        
+
+        case 'get_info':
+          return handleGetInfo(orchestrator);
+
+        case 'ai_status':
+          return handleAIStatus(aiOrchestrator);
+
         default:
           // Try to delegate to connected servers
           return await orchestrator.callTool(name, args);

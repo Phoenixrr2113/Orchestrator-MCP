@@ -63,15 +63,23 @@ The orchestrator now features a complete AI enhancement layer with intelligent r
 
 ## 🛠️ Available Tools
 
-### Orchestrator Tools
-- `test_connection` - Test that the orchestrator is working
-- `get_info` - Get information about connected servers and AI status
-- `web_fetch` - Fetch content from web URLs
-- `ai_process` - **NEW!** Process requests using AI-enhanced orchestration
-- `ai_status` - **NEW!** Get AI orchestration capabilities status
+### Core AI Enhancement Tools
+The orchestrator exposes a minimal set of tools focused on unique capabilities that enhance AI assistants:
+
+- `ai_process` - **Primary Interface** - Process requests using AI orchestration with intelligent tool selection
+- `get_info` - System introspection - Get information about connected servers and available capabilities
+- `ai_status` - Health monitoring - Get the status of AI orchestration capabilities
 
 ### Connected Server Tools
-All tools from connected MCP servers are automatically available (prefixed with server name).
+All tools from connected MCP servers are automatically available through AI orchestration:
+- **Filesystem operations** (read, write, search files)
+- **Git operations** (repository management, status, history)
+- **Memory system** (knowledge graph storage)
+- **Web fetching** (fetch and process web content)
+- **Web search** (DuckDuckGo search for current information)
+- **Browser automation** (Playwright for web testing)
+- **Security analysis** (Semgrep for vulnerability scanning)
+- And more...
 
 ## 🔗 Connected Servers
 
@@ -112,16 +120,34 @@ The orchestrator works with any model available on OpenRouter, including:
 
 ## 📖 Usage Examples
 
-### Basic Tool Usage
+### Primary AI Interface
 ```bash
-# Test the connection
-{"tool": "test_connection", "arguments": {"message": "Hello!"}}
+# Code Analysis & Development
+{"tool": "ai_process", "arguments": {"request": "Find all TypeScript files with TODO comments and create a summary report"}}
+{"tool": "ai_process", "arguments": {"request": "Analyze the codebase architecture and identify potential improvements"}}
+{"tool": "ai_process", "arguments": {"request": "Check git status, review recent commits, and summarize changes since last week"}}
 
-# Get server information
+# Research & Information Gathering
+{"tool": "ai_process", "arguments": {"request": "Search for Next.js 15 new features and create a comparison with version 14"}}
+{"tool": "ai_process", "arguments": {"request": "Fetch the latest TypeScript 5.3 release notes and extract breaking changes"}}
+{"tool": "ai_process", "arguments": {"request": "Research React Server Components best practices and save key insights to memory"}}
+
+# Security & Quality Analysis
+{"tool": "ai_process", "arguments": {"request": "Run security analysis on all JavaScript files and prioritize vulnerabilities by severity"}}
+{"tool": "ai_process", "arguments": {"request": "Analyze code quality across the project and generate improvement recommendations"}}
+
+# Complex Multi-Step Workflows
+{"tool": "ai_process", "arguments": {"request": "Search for React testing best practices, analyze our current test files, and suggest specific improvements"}}
+{"tool": "ai_process", "arguments": {"request": "Fetch competitor documentation, compare with our API design, and identify feature gaps"}}
+```
+
+### System Introspection
+```bash
+# Get server information and capabilities
 {"tool": "get_info", "arguments": {}}
 
-# Use AI-enhanced processing
-{"tool": "ai_process", "arguments": {"request": "Find all Python files in the project and check their git status"}}
+# Check AI orchestration health
+{"tool": "ai_status", "arguments": {}}
 ```
 
 ### AI-Enhanced Workflows

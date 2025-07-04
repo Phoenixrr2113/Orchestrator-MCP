@@ -107,17 +107,31 @@ export class OrchestratorManager {
    */
   async getAllTools(): Promise<any[]> {
     const allTools: any[] = [];
-    
+
     for (const [serverName, server] of this.servers) {
       if (server.connected) {
         // Add server prefix to tool names to avoid conflicts
-        const prefixedTools = server.tools.map(tool => ({
-          ...tool,
-          name: `${serverName}_${tool.name}`,
-          description: `[${serverName}] ${tool.description}`,
-          _originalName: tool.name,
-          _serverName: serverName,
-        }));
+        const prefixedTools = server.tools.map(tool => {
+          // Create a clean tool object without extra properties
+          const cleanTool: any = {
+            name: `${serverName}_${tool.name}`,
+            description: `[${serverName}] ${tool.description}`,
+            inputSchema: tool.inputSchema,
+          };
+
+          // Add optional properties if they exist
+          if (tool.title) {
+            cleanTool.title = tool.title;
+          }
+          if (tool.outputSchema) {
+            cleanTool.outputSchema = tool.outputSchema;
+          }
+          if (tool.annotations) {
+            cleanTool.annotations = tool.annotations;
+          }
+
+          return cleanTool;
+        });
         allTools.push(...prefixedTools);
       }
     }

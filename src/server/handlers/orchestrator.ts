@@ -4,25 +4,11 @@
 
 import { OrchestratorManager } from '../../orchestrator/manager.js';
 import { AIOrchestrator } from '../../ai/orchestrator.js';
-import { toolTracker } from '../../ai/toolTracker.js';
 import { createLogger } from '../../utils/logging.js';
 
 const logger = createLogger('orchestrator-handlers');
 
-/**
- * Handle test connection
- */
-export async function handleTestConnection(args: any) {
-  const message = args.message || 'Hello from Orchestrator!';
-  return {
-    content: [
-      {
-        type: 'text',
-        text: `Orchestrator MCP is working! Echo: ${message}`,
-      },
-    ],
-  };
-}
+
 
 /**
  * Handle get info
@@ -81,16 +67,16 @@ export async function handleAIProcess(args: any, aiOrchestrator: AIOrchestrator)
     if (!request) {
       throw new Error('Request parameter is required');
     }
-    
+
     logger.info(`Processing AI request: ${request.substring(0, 100)}...`);
-    
+
     const result = await aiOrchestrator.processRequest(request);
-    
+
     return {
       content: [
         {
           type: 'text',
-          text: result,
+          text: result.response,
         },
       ],
     };
@@ -108,31 +94,70 @@ export async function handleAIProcess(args: any, aiOrchestrator: AIOrchestrator)
 }
 
 /**
- * Handle tool usage stats
+ * Handle AI status check
  */
-export async function handleToolUsageStats() {
-  const stats = toolTracker.getUsageStats();
-  return {
-    content: [
-      {
-        type: 'text',
-        text: `Tool Usage Statistics:\n\n${JSON.stringify(stats, null, 2)}`,
-      },
-    ],
-  };
+export async function handleAIStatus(aiOrchestrator: AIOrchestrator) {
+  try {
+    const isAvailable = aiOrchestrator.isAIAvailable();
+    const capabilities = await aiOrchestrator.testAICapabilities();
+
+    const status = {
+      available: isAvailable,
+      capabilities,
+      apiKeyConfigured: !!process.env.OPENROUTER_API_KEY,
+      model: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3.5-sonnet',
+    };
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `AI Orchestration Status:\n\n${JSON.stringify(status, null, 2)}`,
+        },
+      ],
+    };
+  } catch (error) {
+    logger.error('Failed to get AI status:', error as Error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Error getting AI status: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+    };
+  }
 }
 
 /**
- * Handle tool usage clear
+ * Handle web fetch
  */
-export async function handleToolUsageClear() {
-  toolTracker.clearHistory();
-  return {
-    content: [
-      {
-        type: 'text',
-        text: 'Tool tracking history cleared successfully.',
-      },
-    ],
-  };
+export async function handleWebFetch(args: any, orchestrator: OrchestratorManager) {
+  try {
+    const url = args.url;
+    if (!url) {
+      throw new Error('URL parameter is required');
+    }
+
+    logger.info(`Fetching URL: ${url}`);
+
+    // Use the fetch server to get the content
+    const result = await orchestrator.callTool('fetch_fetch', { url });
+
+    return result;
+  } catch (error) {
+    logger.error('Failed to fetch URL:', error as Error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `Error fetching URL: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+    };
+  }
 }
+
+
+
+

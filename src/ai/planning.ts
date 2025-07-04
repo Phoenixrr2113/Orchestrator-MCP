@@ -54,7 +54,7 @@ export async function planWorkflow(
     `Plan a workflow to accomplish this intent: "${intent}" with entities: ${JSON.stringify(entities)}`,
     { planWorkflow: workflowPlanningTool },
     {
-      system: `You are an expert workflow planner for a multi-tool orchestration system.
+      system: `You are an expert workflow planner for an AI-enhanced orchestration system that serves as an intelligent assistant enhancement layer.
 
 Available tools: ${availableTools.join(', ')}
 

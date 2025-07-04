@@ -223,16 +223,17 @@ export class AIOrchestrator {
     const lowerRequest = userRequest.toLowerCase();
     const serverInfo = this.orchestratorManager.getServerInfo();
 
-    // Define keyword mappings
+    // Define keyword mappings for fallback tool selection
     const keywordMappings: Record<string, string[]> = {
-      'filesystem': ['file', 'read', 'write', 'directory', 'folder', 'path'],
-      'git': ['git', 'commit', 'repository', 'branch', 'version'],
-      'memory': ['remember', 'store', 'knowledge', 'entity', 'relation'],
-      'fetch': ['fetch', 'url', 'web', 'http', 'download'],
-      'github': ['github', 'issue', 'pull request', 'pr', 'repo'],
-      'playwright': ['browser', 'screenshot', 'navigate', 'click', 'automation'],
-      'puppeteer': ['browser', 'screenshot', 'navigate', 'click', 'automation'],
-      'sequential-thinking': ['think', 'analyze', 'reason', 'problem', 'solve'],
+      'filesystem': ['file', 'read', 'write', 'directory', 'folder', 'path', 'code', 'analyze'],
+      'git': ['git', 'commit', 'repository', 'branch', 'version', 'status', 'history'],
+      'memory': ['remember', 'store', 'knowledge', 'entity', 'relation', 'save', 'context'],
+      'fetch': ['fetch', 'url', 'web', 'http', 'download', 'content', 'page'],
+      'duckduckgo-search': ['search', 'find', 'research', 'latest', 'current', 'information'],
+      'github': ['github', 'issue', 'pull request', 'pr', 'repo', 'repository'],
+      'playwright': ['browser', 'screenshot', 'navigate', 'click', 'automation', 'test'],
+      'semgrep': ['security', 'vulnerability', 'scan', 'analysis', 'safety'],
+      'sequential-thinking': ['think', 'analyze', 'reason', 'problem', 'solve', 'complex'],
     };
 
     // Find the best matching server
