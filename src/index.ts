@@ -22,7 +22,7 @@ async function main() {
     const { orchestrator, aiOrchestrator } = await initializeComponents();
 
     // Setup request handlers
-    setupToolListHandler(server, orchestrator);
+    setupToolListHandler(server);
     setupToolCallHandler(server, orchestrator, aiOrchestrator);
 
     // Start the server

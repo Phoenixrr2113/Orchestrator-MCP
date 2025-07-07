@@ -1,10 +1,10 @@
-# Doppl: Enhanced Augment Code MCP Server
+# Doppl: Enhanced  Code MCP Server
 
 ## Project Overview
-Build a better version of Augment Code as an MCP (Model Context Protocol) server that other clients can use. This will be developed iteratively, starting with basic MCP server setup and gradually adding tools and functions one by one.
+Build a better version of  Code as an MCP (Model Context Protocol) server that other clients can use. This will be developed iteratively, starting with basic MCP server setup and gradually adding tools and functions one by one.
 
 ## Goals
-- Create a comprehensive MCP server that mirrors and enhances Augment Code's capabilities
+- Create a comprehensive MCP server that mirrors and enhances  Code's capabilities
 - Enable any MCP-compatible client to access advanced coding assistance tools
 - Build iteratively with testing at each step
 - Maintain high code quality and documentation
@@ -210,9 +210,9 @@ doppl/
 5. **Manual Testing**: Real-world usage scenarios
 
 ## Success Criteria
-- [ ] All core Augment Code tools replicated and enhanced
+- [ ] All core  Code tools replicated and enhanced
 - [ ] Compatible with Claude Desktop and other MCP clients
-- [ ] Performance equal or better than original Augment
+- [ ] Performance equal or better than original 
 - [ ] Comprehensive documentation
 - [ ] Stable and reliable operation
 - [ ] Easy installation and configuration
@@ -269,7 +269,7 @@ doppl/
 
 ## Notes
 - Focus on one tool at a time with thorough testing
-- Maintain compatibility with existing Augment workflows
+- Maintain compatibility with existing  workflows
 - Document each tool's capabilities and limitations
 - Consider performance implications of each implementation
 - Plan for extensibility and plugin architecture

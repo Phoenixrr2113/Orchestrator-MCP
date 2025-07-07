@@ -44,7 +44,7 @@ export async function analyzeIntent(
       system: `You are an expert at analyzing user requests for an AI-enhanced orchestration system.
 
 This system provides intelligent coordination of multiple specialized tools through a streamlined interface.
-The client primarily uses the 'ai_process' tool which can intelligently orchestrate complex multi-step workflows.
+You are the internal AI that selects and coordinates tools to fulfill user requests.
 
 Available internal capabilities include:
 - filesystem: File operations, reading, writing, searching, directory traversal

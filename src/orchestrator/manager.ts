@@ -42,9 +42,12 @@ export class OrchestratorManager {
           continue;
         }
 
-        // Add working directory for filesystem server
+        // Add working directory for filesystem server with broader access
         if (config.name === 'filesystem') {
-          config.args = [...(config.args || []), process.cwd()];
+          const workingDir = process.cwd();
+
+          // Allow access to current directory for file operations
+          config.args = [...(config.args || []), workingDir];
         }
 
         await this.connectToServer(config);
@@ -142,7 +145,7 @@ export class OrchestratorManager {
   /**
    * Route a tool call to the appropriate server
    */
-  async callTool(toolName: string, args: any): Promise<any> {
+  async callTool(toolName: string, args: any, existingExecutionId?: string): Promise<any> {
     // Parse the tool name to extract server and original tool name
     const parts = toolName.split('_');
     if (parts.length < 2) {
@@ -157,8 +160,9 @@ export class OrchestratorManager {
       throw new Error(`Server ${serverName} is not connected`);
     }
 
-    // Start tracking this tool execution (for direct calls outside of AI workflow)
-    const executionId = toolTracker.startToolExecution(toolName, args);
+    // Use existing execution ID or start new tracking
+    const executionId = existingExecutionId || toolTracker.startToolExecution(toolName, args);
+    const shouldEndTracking = !existingExecutionId; // Only end tracking if we started it
 
     try {
       // Call the tool on the appropriate server
@@ -167,14 +171,18 @@ export class OrchestratorManager {
         arguments: args,
       });
 
-      // End tracking with success
-      toolTracker.endToolExecution(executionId, true, result);
+      // End tracking with success (only if we created the execution ID)
+      if (shouldEndTracking) {
+        toolTracker.endToolExecution(executionId, true, result);
+      }
 
       return result;
     } catch (error) {
-      // End tracking with failure
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      toolTracker.endToolExecution(executionId, false, undefined, errorMessage);
+      // End tracking with failure (only if we created the execution ID)
+      if (shouldEndTracking) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        toolTracker.endToolExecution(executionId, false, undefined, errorMessage);
+      }
       throw error;
     }
   }
@@ -182,9 +190,9 @@ export class OrchestratorManager {
   /**
    * Get information about all connected servers
    */
-  getServerInfo(): any {
+  getServerInfo(): { servers: any } {
     const serverInfo: any = {};
-    
+
     for (const [name, server] of this.servers) {
       serverInfo[name] = {
         connected: server.connected,
@@ -197,7 +205,7 @@ export class OrchestratorManager {
       };
     }
 
-    return serverInfo;
+    return { servers: serverInfo };
   }
 
   /**

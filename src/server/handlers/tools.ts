@@ -4,7 +4,6 @@
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { OrchestratorManager } from '../../orchestrator/manager.js';
 import { createLogger } from '../../utils/logging.js';
 
 const logger = createLogger('tool-handlers');
@@ -13,14 +12,13 @@ const logger = createLogger('tool-handlers');
  * Setup tool listing handler
  */
 export function setupToolListHandler(
-  server: Server,
-  orchestrator: OrchestratorManager
+  server: Server
 ): void {
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     try {
       // Streamlined tools focused on AI enhancement capabilities
       // Each tool provides unique value that enhances AI assistant capabilities
-      const orchestratorTools = [
+      const orchestratorTools: any[] = [
         {
           name: 'ai_process',
           description: 'Primary AI orchestration interface - intelligently processes complex requests by automatically selecting and coordinating multiple tools. Handles file operations, git management, web search, web fetching, browser automation, security analysis, and more. Describe your goal naturally - the AI will determine the best approach and execute multi-step workflows.',
@@ -59,8 +57,10 @@ export function setupToolListHandler(
         },
       ];
 
+      // Context engine tools removed - not needed for client interface
+
       // Only return orchestrator tools - internal server tools are handled transparently
-      logger.info(`Returning ${orchestratorTools.length} orchestrator tools`);
+      logger.info(`Returning ${orchestratorTools.length} total tools`);
 
       return {
         tools: orchestratorTools,

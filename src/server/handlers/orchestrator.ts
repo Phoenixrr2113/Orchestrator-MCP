@@ -31,9 +31,7 @@ export async function handleGetInfo(orchestrator: OrchestratorManager) {
         'AI-powered tool selection',
         'Intelligent workflow execution',
         'Tool usage tracking',
-        'Codebase analysis',
-        'Quality assessment',
-        'Architecture analysis',
+        'Intelligence layer analysis',
       ],
     };
     

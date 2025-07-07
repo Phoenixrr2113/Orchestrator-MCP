@@ -190,7 +190,7 @@ export class AIOrchestrator {
     connectedServers: number;
   } {
     const serverInfo = this.orchestratorManager.getServerInfo();
-    const connectedServers = Object.values(serverInfo).filter((info: any) => info.connected).length;
+    const connectedServers = Object.values(serverInfo.servers).filter((info: any) => info.connected).length;
 
     return {
       initialized: this.initialized,
@@ -221,7 +221,7 @@ export class AIOrchestrator {
    */
   private selectToolByKeywords(userRequest: string): string | null {
     const lowerRequest = userRequest.toLowerCase();
-    const serverInfo = this.orchestratorManager.getServerInfo();
+    const serverInfo = this.orchestratorManager.getServerInfo().servers;
 
     // Define keyword mappings for fallback tool selection
     const keywordMappings: Record<string, string[]> = {

@@ -1,6 +1,7 @@
 import { AIClient } from './client.js';
 import type { ConnectedServer } from '../orchestrator/manager.js';
 import { createLogger } from '../utils/logging.js';
+import { z } from 'zod';
 
 /**
  * Tool routing decision with confidence and reasoning
@@ -10,7 +11,6 @@ export interface RoutingDecision {
   serverName: string;
   confidence: number;
   reasoning: string;
-  alternativeTools: string[];
   parameters: Record<string, any>;
 }
 
@@ -27,22 +27,25 @@ export class IntelligentRouter {
   }
 
   /**
-   * Analyze available tools and select the best one for a user request
+   * Get all available tools and let AI decide which ones to use
    */
   async routeRequest(
     userRequest: string,
     availableServers: Map<string, ConnectedServer>
   ): Promise<RoutingDecision[]> {
-    // First, analyze the user's intent
-    const intentAnalysis = await this.aiClient.analyzeIntent(userRequest);
-    
-    // Get all available tools with their descriptions
+    // Get all available tools - no pre-filtering, let AI decide
     const toolCatalog = this.buildToolCatalog(availableServers);
-    
-    // Use AI to select the best tools
+
+    // Debug logging
+    logger.info(`Built tool catalog with ${toolCatalog.length} tools`);
+    logger.info(`Available servers: ${Array.from(availableServers.keys()).join(', ')}`);
+    if (toolCatalog.length > 0) {
+      logger.info(`Sample tools: ${toolCatalog.slice(0, 3).map(t => t.fullName).join(', ')}`);
+    }
+
+    // Let AI select the best tools from ALL available tools
     const routingDecisions = await this.selectOptimalTools(
       userRequest,
-      intentAnalysis,
       toolCatalog
     );
 
@@ -69,18 +72,42 @@ export class IntelligentRouter {
       capabilities: string[];
     }> = [];
 
+    logger.info(`Building tool catalog from ${availableServers.size} servers`);
+
     for (const [serverName, server] of availableServers) {
-      if (!server.connected) continue;
+      logger.info(`Checking server ${serverName}: connected=${server.connected}, tools=${server.tools?.length || 0}`);
+
+      if (!server.connected) {
+        logger.warn(`Server ${serverName} is not connected, skipping`);
+        continue;
+      }
+
+      if (!server.tools || server.tools.length === 0) {
+        logger.warn(`Server ${serverName} has no tools available`);
+        continue;
+      }
 
       for (const tool of server.tools) {
+        const fullName = `${serverName}_${tool.name}`;
         catalog.push({
           serverName,
           toolName: tool.name,
-          fullName: `${serverName}_${tool.name}`,
+          fullName,
           description: tool.description || 'No description available',
           inputSchema: tool.inputSchema || {},
           capabilities: this.extractCapabilities(serverName, tool.name, tool.description),
         });
+        logger.debug(`Added tool: ${fullName}`);
+      }
+    }
+
+    logger.info(`Built catalog with ${catalog.length} tools total`);
+
+    if (catalog.length === 0) {
+      logger.error('CRITICAL: Tool catalog is empty! This will cause AI routing to fail.');
+      logger.error(`Available servers: ${Array.from(availableServers.keys()).join(', ')}`);
+      for (const [name, server] of availableServers) {
+        logger.error(`  ${name}: connected=${server.connected}, tools=${server.tools?.length || 0}`);
       }
     }
 
@@ -168,23 +195,36 @@ export class IntelligentRouter {
    */
   private async selectOptimalTools(
     userRequest: string,
-    intentAnalysis: any,
     toolCatalog: any[]
   ): Promise<RoutingDecision[]> {
-    const currentWorkingDirectory = process.cwd();
-    const toolSelectionPrompt = `
-CONTEXT:
-- Current Working Directory: ${currentWorkingDirectory}
-- Available MCP Servers: ${toolCatalog.map(t => t.serverName).filter((v, i, a) => a.indexOf(v) === i).join(', ')}
-- Total Available Tools: ${toolCatalog.length}
+    // Validate tool catalog
+    if (!toolCatalog || toolCatalog.length === 0) {
+      logger.error('Cannot select tools: tool catalog is empty');
+      throw new Error('No tools available for selection. This may indicate a server initialization issue.');
+    }
+    // Define a simple, clear schema for routing decisions
+    const routingDecisionSchema = z.object({
+      selectedTool: z.string().describe("The exact tool name to use"),
+      serverName: z.string().describe("The server that provides this tool"),
+      confidence: z.number().min(0).max(1).describe("Confidence level 0-1"),
+      reasoning: z.string().describe("Why this tool was selected"),
+      parameters: z.record(z.any()).describe("Parameters to pass to the tool"),
+    });
 
-USER REQUEST: "${userRequest}"
+    // The AI consistently returns {input: [...]} format, so we need to handle that
+    const routingDecisionsSchema = z.object({
+      input: z.array(routingDecisionSchema).describe("Array of tool routing decisions")
+    }).describe("Tool routing response with input array");
 
-INTENT ANALYSIS:
-- Intent: ${intentAnalysis.intent}
-- Entities: ${JSON.stringify(intentAnalysis.entities)}
-- Confidence: ${intentAnalysis.confidence}
-- Suggested Tools: ${intentAnalysis.suggestedTools.join(', ')}
+    try {
+      // Debug logging
+      logger.info(`Selecting tools for request: "${userRequest}"`);
+      logger.info(`Tool catalog size: ${toolCatalog.length}`);
+
+      // Use generateObject for structured output with a simple, clear prompt
+      const result = await this.aiClient.generateObject({
+        schema: routingDecisionsSchema,
+        prompt: `Select the best tools to accomplish this user request: "${userRequest}"
 
 AVAILABLE TOOLS:
 ${toolCatalog.map((tool, index) => `
@@ -195,87 +235,26 @@ ${index + 1}. ${tool.fullName}
    Schema: ${JSON.stringify(tool.inputSchema, null, 2)}
 `).join('\n')}
 
-Please analyze this request and select the most appropriate tools to accomplish the user's goal. Consider:
-1. Tool capabilities vs. user needs
-2. Logical sequence of operations
-3. Data dependencies between tools
-4. Efficiency and directness
+Select 1-3 tools that would best accomplish the user's goal. For each tool, provide:
+- selectedTool: exact tool name (e.g., "filesystem_list_directory")
+- serverName: the server providing the tool (e.g., "filesystem")
+- confidence: how confident you are (0.0 to 1.0)
+- reasoning: why you chose this tool
+- parameters: any parameters the tool needs (use {} if none)`,
+        system: `You are a tool selection expert. Your job is to pick the right tools for user requests.
 
-For each selected tool, provide:
-- Tool name (full name with server prefix)
-- Confidence score (0-1)
-- Reasoning for selection
-- Suggested parameters based on user request
-- Alternative tools that could also work
-
-Return your analysis as a JSON array of tool selections.`;
-
-    try {
-      const response = await this.aiClient.generateResponse(toolSelectionPrompt, {
-        system: `You are an expert tool orchestration system for an AI-enhanced MCP server.
-
-Your role is to intelligently select and sequence tools to accomplish user goals efficiently.
-This system serves as an AI assistant enhancement layer, so focus on:
-
-1. **Efficiency**: Choose the most direct path to the user's goal
-2. **Intelligence**: Understand the user's true intent, not just keywords
-3. **Workflow Logic**: Consider dependencies and optimal sequencing
-4. **Resource Optimization**: Minimize redundant operations
-5. **Memory Usage**: ALWAYS use memory tools to store and retrieve context when relevant
-
-IMPORTANT TOOL NAMING:
-- Use EXACT tool names from the available tools list (e.g., "filesystem_read_file", "git_log", "memory_create_entity")
-- Tool names follow the pattern: {server_name}_{tool_name}
-- When working with files, ALWAYS provide full paths or relative paths from the current working directory
-- For memory operations, store insights and context for future reference
-
-Available tool categories:
-- filesystem: File operations, code analysis, directory traversal (use full paths)
-- git: Repository management, version control, change tracking
-- memory: Persistent knowledge storage, context management (ALWAYS use for storing insights)
-- fetch: Web content retrieval, document processing
-- duckduckgo-search: Web search for current information
-- github: Repository analysis, issue management, code review
-- playwright: Browser automation, web testing, screenshots
-- semgrep: Security analysis, vulnerability detection
-- sequential-thinking: Complex reasoning, problem decomposition
-
-Always respond with valid JSON in this format:
-[
-  {
-    "selectedTool": "filesystem_read_file",
-    "serverName": "filesystem",
-    "confidence": 0.95,
-    "reasoning": "This tool reads the specific file requested by the user",
-    "alternativeTools": ["filesystem_list_directory", "git_show"],
-    "parameters": {"path": "/full/path/to/file.ts"}
-  },
-  {
-    "selectedTool": "memory_create_entity",
-    "serverName": "memory",
-    "confidence": 0.90,
-    "reasoning": "Store the analysis results for future reference",
-    "alternativeTools": ["memory_add_observation"],
-    "parameters": {"name": "file_analysis", "entityType": "analysis", "observations": ["key insights"]}
-  }
-]
-
-CRITICAL: Always include memory operations to store insights and context for future use.
-Prioritize tools that provide the most value for the user's specific request.`,
-        temperature: 0.2, // Lower temperature for more consistent tool selection
+Rules:
+1. Use exact tool names from the list above
+2. Choose tools that directly solve the user's problem
+3. Be confident in your selections
+4. Provide clear reasoning
+5. Keep it simple and focused
+6. You have access to ALL tools - choose the best ones for the task`,
+        temperature: 0.1, // Very low temperature for consistent tool selection
       });
 
-      // Try to parse the JSON response
-      try {
-        const decisions = JSON.parse(response);
-        return Array.isArray(decisions) ? decisions : [decisions];
-      } catch (parseError) {
-        logger.error('Failed to parse AI routing response', parseError as Error);
-        logger.debug('Raw response', { response });
-
-        // Fallback to simple tool matching
-        return this.fallbackToolSelection(userRequest, toolCatalog);
-      }
+      // Return the array of routing decisions from the input property
+      return result.object.input;
     } catch (error) {
       logger.error('AI routing failed', error as Error);
       return this.fallbackToolSelection(userRequest, toolCatalog);
@@ -314,7 +293,6 @@ Prioritize tools that provide the most value for the user's specific request.`,
           serverName: tool.serverName,
           confidence: Math.min(score / 10, 0.8), // Cap at 0.8 for fallback
           reasoning: `Keyword match (score: ${score}) - fallback selection`,
-          alternativeTools: [],
           parameters: {},
         });
       }

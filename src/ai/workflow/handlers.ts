@@ -82,7 +82,6 @@ export class WorkflowFailureHandler {
             serverName: 'fallback',
             confidence: 0.5,
             reasoning: `Fallback for failed step: ${failedStep.tool}`,
-            alternativeTools: [],
             parameters: options.fallbackParameters || {},
           };
           return { 

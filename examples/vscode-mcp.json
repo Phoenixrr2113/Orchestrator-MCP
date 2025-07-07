@@ -23,7 +23,7 @@
     "Orchestrator MCP": {
       "type": "stdio",
       "command": "node",
-      "args": ["/path/to/augmentv2/dist/index.js"],
+      "args": ["/path/to/project/dist/index.js"],
       "env": {
         "OPENROUTER_API_KEY": "${input:openrouter-key}",
         "OPENROUTER_DEFAULT_MODEL": "anthropic/claude-3.5-sonnet",

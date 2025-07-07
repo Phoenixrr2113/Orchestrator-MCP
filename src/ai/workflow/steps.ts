@@ -51,15 +51,16 @@ export class WorkflowStepExecutor {
       // Prepare parameters with context data
       const enrichedParameters = this.enrichParameters(step.parameters, context);
       
-      // Execute the tool with timeout
+      // Execute the tool with timeout, passing the execution ID to avoid duplicate tracking
       const result = await this.executeWithTimeout(
         step.selectedTool,
         enrichedParameters,
-        options.timeout || 30000
+        options.timeout || 30000,
+        executionId
       );
 
       const executionTime = Date.now() - startTime;
-      
+
       // Mark execution as successful
       toolTracker.endToolExecution(executionId, true, result);
 
@@ -273,10 +274,11 @@ export class WorkflowStepExecutor {
   private async executeWithTimeout(
     tool: string,
     parameters: Record<string, any>,
-    timeoutMs: number
+    timeoutMs: number,
+    executionId?: string
   ): Promise<any> {
     return Promise.race([
-      this.orchestrator.callTool(tool, parameters),
+      this.orchestrator.callTool(tool, parameters, executionId),
       new Promise((_, reject) =>
         setTimeout(() => reject(new Error(`Tool execution timeout: ${tool}`)), timeoutMs)
       ),

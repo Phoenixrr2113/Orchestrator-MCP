@@ -6,6 +6,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { OrchestratorManager } from '../../orchestrator/manager.js';
 import { AIOrchestrator } from '../../ai/orchestrator.js';
+
 import { createLogger, createErrorResponse } from '../../utils/index.js';
 
 // Import handlers for streamlined tool set
@@ -41,6 +42,8 @@ export function setupToolCallHandler(
 
         case 'ai_status':
           return handleAIStatus(aiOrchestrator);
+
+        // Context engine tools removed
 
         default:
           // Try to delegate to connected servers

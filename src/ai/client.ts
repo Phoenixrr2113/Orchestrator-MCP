@@ -1,5 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateText, streamText } from 'ai';
+import { generateText, streamText, generateObject } from 'ai';
+import type { z } from 'zod';
 
 /**
  * AI Client configuration and setup for OpenRouter integration
@@ -73,6 +74,27 @@ export class AIClient {
       maxTokens: options?.maxTokens || this.config.maxTokens || 2000,
       temperature: options?.temperature || this.config.temperature || 0.7,
       system: options?.system,
+    });
+  }
+
+  /**
+   * Generate structured object using AI with Zod schema validation
+   */
+  async generateObject<T>(options: {
+    schema: z.ZodSchema<T>;
+    prompt: string;
+    system?: string;
+    model?: string;
+    maxTokens?: number;
+    temperature?: number;
+  }): Promise<{ object: T }> {
+    return generateObject({
+      model: this.getModel(options.model),
+      schema: options.schema,
+      prompt: options.prompt,
+      system: options.system,
+      maxTokens: options.maxTokens || this.config.maxTokens || 2000,
+      temperature: options.temperature || this.config.temperature || 0.7,
     });
   }
 

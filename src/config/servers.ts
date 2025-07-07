@@ -94,7 +94,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'fetch': {
     name: 'fetch',
     description: 'Web content fetching and conversion for efficient LLM usage',
-    enabled: true, // Package confirmed: mcp-server-fetch
+    enabled: false, // DISABLED - Redundant with DuckDuckGo's fetch-url capability
     runtime: 'uvx',
     command: 'uvx',
     args: ['mcp-server-fetch'],
@@ -106,7 +106,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'github': {
     name: 'github',
     description: 'Official GitHub integration for repository management, PRs, issues',
-    enabled: true, // Phase 3 - ENABLED!
+    enabled: false, // DISABLED - Too many tools (26), overwhelming for LLM
     runtime: 'npm',
     command: 'npx',
     args: ['@modelcontextprotocol/server-github'],
@@ -128,7 +128,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'playwright': {
     name: 'playwright',
     description: 'Community Playwright server for browser automation and web testing',
-    enabled: true, // Phase 5 - ENABLED for browser automation!
+    enabled: false, // DISABLED - Too many tools (32), overwhelming for LLM
     runtime: 'npm',
     command: 'npx',
     args: ['@executeautomation/playwright-mcp-server'],
@@ -141,7 +141,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'puppeteer': {
     name: 'puppeteer',
     description: 'Official Puppeteer server for browser automation and web scraping',
-    enabled: true, // Phase 5 - ENABLED as alternative to Playwright!
+    enabled: true, // ENABLED - Fewer tools (7) than Playwright (32), better for LLM
     runtime: 'npm',
     command: 'npx',
     args: ['@modelcontextprotocol/server-puppeteer'],
@@ -179,7 +179,7 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
   'semgrep': {
     name: 'semgrep',
     description: 'Security vulnerability scanning for code analysis',
-    enabled: true, // Phase 5 - ENABLED for security analysis!
+    enabled: false, // DISABLED - Specialized tools, reducing complexity for LLM
     runtime: 'uvx',
     command: 'uvx',
     args: ['semgrep-mcp'],

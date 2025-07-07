@@ -8,11 +8,17 @@
     "orchestrator-mcp": "dist/index.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "node scripts/build.js",
+    "build:simple": "echo \"🔨 Starting TypeScript build...\" && tsc && echo \"✅ Build completed successfully!\"",
+    "build:verbose": "echo \"🔨 Starting TypeScript build with verbose output...\" && tsc --listFiles && echo \"✅ Build completed successfully!\"",
+    "dev": "echo \"👀 Starting TypeScript watch mode...\" && tsc --watch",
     "start": "node dist/index.js",
     "start:dev": "node -r dotenv/config dist/index.js",
-    "test": "echo \"No tests yet\" && exit 0"
+    "test": "echo \"No tests yet\" && exit 0",
+    "test:context-poc": "tsx scripts/test-context-poc.ts",
+    "test:tools": "node scripts/test-tools-manual.js",
+    "clean": "echo \"🧹 Cleaning dist directory...\" && rm -rf dist && echo \"✅ Clean completed!\"",
+    "rebuild": "npm run clean && npm run build"
   },
   "keywords": [
     "mcp",
@@ -36,6 +42,7 @@
   "devDependencies": {
     "@types/node": "^20.19.4",
     "dotenv": "^17.0.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.8.3"
   },
   "engines": {

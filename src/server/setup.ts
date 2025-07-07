@@ -7,6 +7,7 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { OrchestratorManager } from '../orchestrator/manager.js';
 import { AIOrchestrator } from '../ai/orchestrator.js';
+
 import { createLogger } from '../utils/logging.js';
 
 const logger = createLogger('server-setup');
@@ -44,6 +45,7 @@ export async function initializeComponents(): Promise<{
 
   // Initialize AI orchestration layer (optional - will gracefully degrade if not available)
   const aiOrchestrator = new AIOrchestrator(orchestrator);
+
   try {
     await aiOrchestrator.initialize();
     logger.info('AI Orchestration Layer initialized successfully');

@@ -10,6 +10,7 @@ import { WorkflowContextManager, type WorkflowContext } from './context.js';
 import { WorkflowStepExecutor, type StepExecutionOptions } from './steps.js';
 import { WorkflowFailureHandler, type RecoveryOptions } from './handlers.js';
 import { synthesizeResults } from '../synthesis.js';
+import { toolTracker } from '../toolTracker.js';
 import { createLogger } from '../../utils/logging.js';
 
 const logger = createLogger('workflow-engine');
@@ -71,10 +72,13 @@ export class WorkflowEngine {
 
     logger.info('Starting workflow execution', { request: userRequest });
 
+    // Start tool tracking session
+    const sessionId = toolTracker.startSession(userRequest);
+
     try {
       // Plan the workflow using AI
       const steps = await this.planWorkflow(userRequest);
-      
+
       if (steps.length === 0) {
         throw new Error('No workflow steps could be planned for this request');
       }
@@ -118,6 +122,9 @@ export class WorkflowEngine {
         recoveryAttempts
       });
 
+      // End tool tracking session
+      toolTracker.endSession(executionResult.success ? 'completed' : 'failed');
+
       return {
         success: executionResult.success,
         finalResult,
@@ -134,6 +141,9 @@ export class WorkflowEngine {
     } catch (error) {
       const executionTime = Date.now() - startTime;
       logger.error('Workflow execution failed', error as Error, { executionTime });
+
+      // End tool tracking session with failure
+      toolTracker.endSession('failed');
 
       return {
         success: false,
