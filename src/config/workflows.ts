@@ -50,12 +50,13 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowDefinition> = {
         action: 'directory_tree',
         parameters: { path: '.' },
       },
-      {
-        id: 'security-scan',
-        tool: 'semgrep',
-        action: 'security_check',
-        parameters: {},
-      },
+      // Security scan step removed - semgrep server is disabled
+      // {
+      //   id: 'security-scan',
+      //   tool: 'semgrep',
+      //   action: 'security_check',
+      //   parameters: {},
+      // },
       {
         id: 'git-analysis',
         tool: 'git',
@@ -145,8 +146,8 @@ export const WORKFLOW_TEMPLATES: Record<string, WorkflowDefinition> = {
     steps: [
       {
         id: 'fetch-content',
-        tool: 'fetch',
-        action: 'fetch',
+        tool: 'duckduckgo-search',
+        action: 'fetch_url',
         parameters: {},
       },
       {

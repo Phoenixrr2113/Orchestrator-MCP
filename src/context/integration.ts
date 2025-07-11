@@ -27,51 +27,27 @@ export class ContextEngineIntegration {
 
   /**
    * Get context engine tools for MCP server registration
+   * NOTE: These tools are not currently exposed to clients - they're handled internally by ai_process
    */
   getContextTools() {
-    return [
-      {
-        name: 'analyze_intelligence_layer',
-        description: 'Analyze intelligence layer implementation vs placeholder code',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            includeQuality: {
-              type: 'boolean',
-              description: 'Include quality assessment analysis',
-              default: true
-            },
-            includeArchitecture: {
-              type: 'boolean',
-              description: 'Include architectural analysis',
-              default: true
-            }
-          },
-          additionalProperties: false,
-          $schema: 'http://json-schema.org/draft-07/schema#'
-        }
-      }
-    ];
+    // Context engine tools are integrated into ai_process workflow
+    // No separate tools exposed to avoid overwhelming LLM with too many options
+    return [];
+
+    // Previously defined but not exposed:
+    // - analyze_intelligence_layer (now handled via ai_process requests)
   }
 
   /**
    * Handle context engine tool calls
+   * NOTE: Context engine capabilities are now integrated into ai_process workflow
    */
   async handleToolCall(toolName: string, parameters: any): Promise<any> {
-    logger.info('Handling context engine tool call', { toolName, parameters });
+    logger.info('Context engine tool call (deprecated)', { toolName, parameters });
 
-    try {
-      switch (toolName) {
-        case 'analyze_intelligence_layer':
-          return await this.handleIntelligenceAnalysis(parameters);
-
-        default:
-          throw new Error(`Unknown context engine tool: ${toolName}`);
-      }
-    } catch (error) {
-      logger.error('Context engine tool call failed', error as Error, { toolName });
-      throw error;
-    }
+    // Context engine tools are no longer exposed separately
+    // All functionality is available through ai_process requests
+    throw new Error(`Context engine tools are integrated into ai_process. Use ai_process instead of ${toolName}`);
   }
 
 

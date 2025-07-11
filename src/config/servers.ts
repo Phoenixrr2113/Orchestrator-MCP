@@ -36,7 +36,6 @@ export interface EnhancedServerConfig {
  * Organized by development phases for systematic rollout
  */
 export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
-  // ===== PHASE 1-2: FOUNDATION (COMPLETE) =====
 
   // Official TypeScript servers (npm)
   'filesystem': {
@@ -77,8 +76,6 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     phase: 2,
   },
 
-  // ===== PHASE 3: ECOSYSTEM EXPANSION (IN PROGRESS) =====
-
   'memory': {
     name: 'memory',
     description: 'Knowledge graph-based persistent memory with entities, relations, and observations',
@@ -117,25 +114,6 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     },
     requiresSetup: true,
     phase: 3,
-  },
-
-  // ===== PHASE 4: AI ENHANCEMENT LAYER =====
-
-  // No additional servers needed - focuses on AI orchestration with existing servers
-
-  // ===== PHASE 5: CODING INTELLIGENCE & AUTOMATION =====
-
-  'playwright': {
-    name: 'playwright',
-    description: 'Community Playwright server for browser automation and web testing',
-    enabled: false, // DISABLED - Too many tools (32), overwhelming for LLM
-    runtime: 'npm',
-    command: 'npx',
-    args: ['@executeautomation/playwright-mcp-server'],
-    category: 'community',
-    language: 'typescript',
-    requiresSetup: true,
-    phase: 5,
   },
 
   'puppeteer': {
@@ -191,8 +169,6 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     phase: 5,
   },
 
-  // ===== PHASE 6: EXTENDED ECOSYSTEM INTEGRATION =====
-
   'postgres': {
     name: 'postgres',
     description: 'Read-only database access with schema inspection',
@@ -209,61 +185,16 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     phase: 6,
   },
 
-  'brave-search': {
-    name: 'brave-search',
-    description: 'Web and local search using Brave Search API',
-    enabled: false, // DISABLED - Requires BRAVE_API_KEY
-    runtime: 'npm',
-    command: 'npx',
-    args: ['@modelcontextprotocol/server-brave-search'],
-    category: 'official',
-    language: 'typescript',
-    env: {
-      'BRAVE_API_KEY': 'required',
-    },
-    requiresSetup: true,
-    phase: 6,
-  },
-
   'duckduckgo-search': {
     name: 'duckduckgo-search',
     description: 'Privacy-focused web search using DuckDuckGo and Felo AI',
-    enabled: true, // ENABLED - Phase 6 search integration!
+    enabled: true, // ENABLED!
     runtime: 'npm',
     command: 'npx',
     args: ['-y', '@oevortex/ddg_search'],
     category: 'community',
     language: 'typescript',
     requiresSetup: false, // No API key required
-    phase: 6,
-  },
-
-  'tavily-search': {
-    name: 'tavily-search',
-    description: 'Advanced search and data extraction using Tavily API',
-    enabled: false, // DISABLED - Requires TAVILY_API_KEY
-    runtime: 'npm',
-    command: 'npx',
-    args: ['-y', 'mcp-tavily-search'],
-    category: 'community',
-    language: 'typescript',
-    env: {
-      'TAVILY_API_KEY': 'required',
-    },
-    requiresSetup: true,
-    phase: 6,
-  },
-
-  'leetcode': {
-    name: 'leetcode',
-    description: 'LeetCode problem solving and coding practice integration',
-    enabled: false, // DISABLED - Package not found
-    runtime: 'npm',
-    command: 'npx',
-    args: ['-y', 'doggybee-mcp-server-leetcode'],
-    category: 'community',
-    language: 'typescript',
-    requiresSetup: false,
     phase: 6,
   },
 
@@ -278,33 +209,6 @@ export const MCP_SERVER_REGISTRY: Record<string, EnhancedServerConfig> = {
     language: 'typescript',
     requiresSetup: true,
     phase: 6,
-  },
-
-  'mastra-docs': {
-    name: 'mastra-docs',
-    description: 'Access to Mastra.ai complete knowledge base and documentation',
-    enabled: false, // Disabled - specific to Mastra.ai
-    runtime: 'npm',
-    command: 'npx',
-    args: ['-y', '@mastra/mcp-docs-server'],
-    category: 'community',
-    language: 'typescript',
-    requiresSetup: false,
-    phase: 6,
-  },
-
-  // ===== FUTURE PHASES: ADDITIONAL SERVERS =====
-
-  'time': {
-    name: 'time',
-    description: 'Time and timezone conversion capabilities',
-    enabled: false,
-    runtime: 'uvx',
-    command: 'uvx',
-    args: ['mcp-server-time'],
-    category: 'official',
-    language: 'python',
-    phase: 7,
   },
 
   'slack': {

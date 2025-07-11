@@ -129,7 +129,8 @@ export async function handleAIStatus(aiOrchestrator: AIOrchestrator) {
 }
 
 /**
- * Handle web fetch
+ * Handle web fetch (DEPRECATED - fetch server is disabled)
+ * Web content access is now handled through DuckDuckGo search server's fetch-url capability
  */
 export async function handleWebFetch(args: any, orchestrator: OrchestratorManager) {
   try {
@@ -138,10 +139,10 @@ export async function handleWebFetch(args: any, orchestrator: OrchestratorManage
       throw new Error('URL parameter is required');
     }
 
-    logger.info(`Fetching URL: ${url}`);
+    logger.info(`Web fetch requested for: ${url} (using DuckDuckGo fetch-url instead)`);
 
-    // Use the fetch server to get the content
-    const result = await orchestrator.callTool('fetch_fetch', { url });
+    // Use DuckDuckGo's fetch-url capability instead of disabled fetch server
+    const result = await orchestrator.callTool('duckduckgo_fetch_url', { url });
 
     return result;
   } catch (error) {
@@ -150,7 +151,7 @@ export async function handleWebFetch(args: any, orchestrator: OrchestratorManage
       content: [
         {
           type: 'text',
-          text: `Error fetching URL: ${error instanceof Error ? error.message : String(error)}`,
+          text: `Error fetching URL: ${error instanceof Error ? error.message : String(error)}. Note: Web content fetching is now handled through DuckDuckGo search server.`,
         },
       ],
     };

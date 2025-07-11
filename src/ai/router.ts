@@ -120,7 +120,7 @@ export class IntelligentRouter {
   private extractCapabilities(serverName: string, toolName: string, description: string): string[] {
     const capabilities: string[] = [];
 
-    // Server-based capabilities
+    // Server-based capabilities (only enabled servers)
     switch (serverName) {
       case 'filesystem':
         capabilities.push('file_operations', 'read_files', 'write_files', 'search_files');
@@ -131,13 +131,9 @@ export class IntelligentRouter {
       case 'memory':
         capabilities.push('knowledge_storage', 'entity_management', 'relationship_tracking');
         break;
-      case 'fetch':
-        capabilities.push('web_content', 'http_requests', 'data_retrieval');
+      case 'duckduckgo-search':
+        capabilities.push('web_search', 'web_content', 'http_requests', 'data_retrieval', 'fetch_url');
         break;
-      case 'github':
-        capabilities.push('github_api', 'repository_management', 'issue_tracking', 'pull_requests');
-        break;
-      case 'playwright':
       case 'puppeteer':
         capabilities.push('browser_automation', 'web_testing', 'screenshot_capture', 'form_interaction');
         break;

@@ -25,7 +25,7 @@ An intelligent MCP (Model Context Protocol) server that orchestrates multiple MC
 - **Performance Optimized**: 30s execution time for complex analysis
 
 ### Built-in Capabilities
-- **Web Fetching**: HTTP content retrieval capabilities
+- **Web Search**: DuckDuckGo search for current information
 - **Fallback Mode**: Graceful degradation when AI is not available
 
 ## Current Status
@@ -34,7 +34,7 @@ An intelligent MCP (Model Context Protocol) server that orchestrates multiple MC
 
 ✅ **Context Engine**: 85.7% quality score, 95% analysis confidence
 ✅ **AI Enhancement Layer**: Complete with intelligent routing and workflow automation
-✅ **Multi-Server Orchestration**: 10/10 MCP servers connected and functional
+✅ **Multi-Server Orchestration**: 6/6 MCP servers connected and functional
 
 ## 🚀 Quick Start
 
@@ -81,33 +81,28 @@ All tools from connected MCP servers are automatically available through AI orch
 - **Filesystem operations** (read, write, search files)
 - **Git operations** (repository management, status, history)
 - **Memory system** (knowledge graph storage)
-- **Web fetching** (fetch and process web content)
 - **Web search** (DuckDuckGo search for current information)
-- **Browser automation** (Playwright for web testing)
-- **Security analysis** (Semgrep for vulnerability scanning)
+- **Browser automation** (Puppeteer for web scraping and automation)
+- **Sequential thinking** (Dynamic problem-solving through thought sequences)
 - And more...
 
 ## 🔗 Connected Servers
 
-Currently configured servers:
+Currently enabled servers:
 
 - **filesystem** (npm) - File operations with secure access controls
 - **sequential-thinking** (npm) - Dynamic problem-solving through thought sequences
 - **git** (uvx) - Git repository tools and operations
 - **memory** (npm) - Knowledge graph-based persistent memory
-- **fetch** (uvx) - Enhanced web content fetching
-- **github** (npm) - Official GitHub API integration (requires GITHUB_TOKEN)
-- **playwright** (npm) - Browser automation and web testing
-- **puppeteer** (npm) - Alternative browser automation
+- **puppeteer** (npm) - Browser automation and web scraping
+- **duckduckgo-search** (npm) - Privacy-focused web search
 
 ## 🤖 AI Configuration
 
 To enable AI features, you need an OpenRouter API key. Additional API keys can be configured for enhanced integrations:
 
 1. **Required for AI features**: Get an API key from [OpenRouter](https://openrouter.ai/keys)
-2. **Optional integrations**:
-   - GitHub Personal Access Token for GitHub server integration
-   - Semgrep App Token for enhanced security scanning
+2. **Optional integrations**: None currently required - all enabled servers work without additional API keys
 3. Configure the API keys in your MCP client settings:
 
    **For Claude Desktop** (`~/.claude_desktop_config.json`):
@@ -187,16 +182,16 @@ The orchestrator works with any model available on OpenRouter, including:
 
 # Research & Information Gathering
 {"tool": "ai_process", "arguments": {"request": "Search for Next.js 15 new features and create a comparison with version 14"}}
-{"tool": "ai_process", "arguments": {"request": "Fetch the latest TypeScript 5.3 release notes and extract breaking changes"}}
+{"tool": "ai_process", "arguments": {"request": "Search for TypeScript 5.3 release notes and extract breaking changes"}}
 {"tool": "ai_process", "arguments": {"request": "Research React Server Components best practices and save key insights to memory"}}
 
-# Security & Quality Analysis
-{"tool": "ai_process", "arguments": {"request": "Run security analysis on all JavaScript files and prioritize vulnerabilities by severity"}}
+# Code Analysis & Quality
 {"tool": "ai_process", "arguments": {"request": "Analyze code quality across the project and generate improvement recommendations"}}
+{"tool": "ai_process", "arguments": {"request": "Review git history and identify patterns in recent changes"}}
 
 # Complex Multi-Step Workflows
 {"tool": "ai_process", "arguments": {"request": "Search for React testing best practices, analyze our current test files, and suggest specific improvements"}}
-{"tool": "ai_process", "arguments": {"request": "Fetch competitor documentation, compare with our API design, and identify feature gaps"}}
+{"tool": "ai_process", "arguments": {"request": "Search for competitor documentation, compare with our API design, and identify feature gaps"}}
 ```
 
 ### System Introspection
@@ -248,10 +243,7 @@ All environment variables are configured through your MCP client settings. The f
 - `OPENROUTER_TEMPERATURE` (optional) - Temperature for AI responses (default: "0.7")
 
 **MCP Server Integrations:**
-- `GITHUB_TOKEN` (optional) - GitHub Personal Access Token for GitHub server integration
-- `SEMGREP_APP_TOKEN` (optional) - Semgrep App Token for enhanced security scanning
-- `SLACK_BOT_TOKEN` (optional) - Slack Bot Token for Slack integration (if enabled)
-- `SLACK_APP_TOKEN` (optional) - Slack App Token for Slack integration (if enabled)
+All currently enabled MCP servers work without additional API keys or configuration.
 
 ## 🔧 Development
 

@@ -6,21 +6,21 @@
 
 ## Overview
 
-Successfully tested all 4 primary tools exposed by the Orchestrator MCP Server. Major fixes implemented using AI SDK's `generateObject` for structured output. The server connected to 10 underlying MCP servers and demonstrated full AI orchestration capabilities.
+Successfully tested all 3 primary tools exposed by the Orchestrator MCP Server. Major fixes implemented using AI SDK's `generateObject` for structured output. The server connected to 6 underlying MCP servers and demonstrated full AI orchestration capabilities.
 
 ## Test Results
 
 ### ✅ Tool Discovery
 - **Status:** PASSED
-- **Result:** Found 4 tools as expected
-- **Tools:** ai_process, get_info, ai_status, analyze_intelligence_layer
+- **Result:** Found 3 tools as expected
+- **Tools:** ai_process, get_info, ai_status
 
 ### ✅ get_info Tool - **FIXED!**
 - **Status:** PASSED
 - **Result:** Successfully returned comprehensive server information
 - **Key Info:**
-  - 10 connected servers (filesystem, git, memory, github, etc.)
-  - 112 total tools across all servers
+  - 6 connected servers (filesystem, git, memory, puppeteer, etc.)
+  - 60+ total tools across all servers
   - Detailed tool descriptions and capabilities
   - Proper JSON structure with server details
 
@@ -32,13 +32,7 @@ Successfully tested all 4 primary tools exposed by the Orchestrator MCP Server. 
   - API key properly configured
   - Model: `google/gemini-2.5-pro`
 
-### ✅ analyze_intelligence_layer Tool
-- **Status:** PASSED
-- **Result:** Successfully executed context engine workflow
-- **Performance:**
-  - 5 workflow steps executed
-  - 45 second execution time (simulated)
-  - 85% confidence rating
+
 
 ### ✅ ai_process Tool
 - **Status:** PASSED
@@ -51,17 +45,13 @@ Successfully tested all 4 primary tools exposed by the Orchestrator MCP Server. 
 
 ## Connected Servers
 
-Successfully connected to 10 MCP servers:
+Successfully connected to 6 MCP servers:
 1. filesystem (npm)
 2. sequential-thinking (npm)
 3. git (uvx)
 4. memory (npm)
-5. fetch (uvx)
-6. github (npm)
-7. playwright (npm)
-8. puppeteer (npm)
-9. semgrep (uvx)
-10. duckduckgo-search (npm)
+5. puppeteer (npm)
+6. duckduckgo-search (npm)
 
 ## Major Fixes Implemented
 
